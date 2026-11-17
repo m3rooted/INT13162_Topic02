@@ -1,0 +1,174 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="topic02" name="UML Class Diagram">
+    <mxGraphModel dx="3180" dy="1610" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1150" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;" value="&lt;b&gt;TOPIC 02 - HỆ THỐNG QUẢN LÝ BỆNH NHÂN&lt;br&gt;UML CLASS DIAGRAM (PYTHON OOP)&lt;/b&gt;" vertex="1">
+          <mxGeometry height="50" width="500" x="330" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="Patient" parent="1" style="swimlane;fontStyle=2;align=center;verticalAlign=top;horizontal=1;startSize=22;collapsible=0;fontSize=10;fillColor=#EEF1FF;strokeColor=#8C9ADB;swimlaneFillColor=#EEF1FF;" value="Patient" vertex="1">
+          <mxGeometry height="222" width="205" x="480" y="257" as="geometry" />
+        </mxCell>
+        <mxCell id="Patient_a" parent="Patient" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;fontSize=9;whiteSpace=wrap;" value="#_patient_id: str&lt;br&gt;#_full_name: str&lt;br&gt;#_birth_year: int&lt;br&gt;#_phone: str" vertex="1">
+          <mxGeometry height="56" width="215" y="22" as="geometry" />
+        </mxCell>
+        <mxCell id="Patient_l" parent="Patient" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;points=[];strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="215" y="78" as="geometry" />
+        </mxCell>
+        <mxCell id="Patient_m" parent="Patient" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;fontSize=9;whiteSpace=wrap;" value="+__init__(patient_id: str, full_name: str,&lt;br&gt;   birth_year: int, phone: str): None&lt;br&gt;+patient_id: str «read-only property»&lt;br&gt;+full_name: str «property + setter»&lt;br&gt;+birth_year: int «property + setter»&lt;br&gt;+phone: str «property + setter»&lt;br&gt;+validate(): bool&lt;br&gt;+__str__(): str&lt;br&gt;+display_info(): str&lt;br&gt;&lt;i&gt;+calculate_fee(): float&lt;/i&gt;" vertex="1">
+          <mxGeometry height="136" width="215" y="86" as="geometry" />
+        </mxCell>
+        <mxCell id="Inpatient" parent="1" style="swimlane;fontStyle=0;align=center;verticalAlign=top;horizontal=1;startSize=22;collapsible=0;fontSize=10;fillColor=#E8FFF3;strokeColor=#7CC9A0;swimlaneFillColor=#E8FFF3;" value="Inpatient" vertex="1">
+          <mxGeometry height="196" width="250" x="783" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="Inpatient_a" parent="Inpatient" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;fontSize=9;whiteSpace=wrap;" value="#_admission_date: date&lt;br&gt;#_daily_fee: float&lt;br&gt;#_days_stayed: int" vertex="1">
+          <mxGeometry height="43" width="250" y="22" as="geometry" />
+        </mxCell>
+        <mxCell id="Inpatient_l" parent="Inpatient" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;points=[];strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="250" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="Inpatient_m" parent="Inpatient" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;fontSize=9;whiteSpace=wrap;" value="+__init__(patient_id: str, full_name: str,&lt;br&gt;   birth_year: int, phone: str, admission_date: date,&lt;br&gt;   daily_fee: float, days_stayed: int): None&lt;br&gt;+admission_date: date «property + setter»&lt;br&gt;+daily_fee: float «property + setter»&lt;br&gt;+days_stayed: int «property + setter»&lt;br&gt;+validate(): bool&lt;br&gt;+display_info(): str&lt;br&gt;+calculate_fee(): float" vertex="1">
+          <mxGeometry height="123" width="250" y="73" as="geometry" />
+        </mxCell>
+        <mxCell id="Outpatient" parent="1" style="swimlane;fontStyle=0;align=center;verticalAlign=top;horizontal=1;startSize=22;collapsible=0;fontSize=10;fillColor=#EEF3FF;strokeColor=#8C9ADB;swimlaneFillColor=#EEF3FF;" value="Outpatient" vertex="1">
+          <mxGeometry height="144" width="220" x="820" y="281" as="geometry" />
+        </mxCell>
+        <mxCell id="Outpatient_a" parent="Outpatient" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;fontSize=9;whiteSpace=wrap;" value="#_consultation_fee: float" vertex="1">
+          <mxGeometry height="17" width="220" y="22" as="geometry" />
+        </mxCell>
+        <mxCell id="Outpatient_l" parent="Outpatient" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;points=[];strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="220" y="39" as="geometry" />
+        </mxCell>
+        <mxCell id="Outpatient_m" parent="Outpatient" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;fontSize=9;whiteSpace=wrap;" value="+__init__(patient_id: str, full_name: str,&lt;br&gt;   birth_year: int, phone: str,&lt;br&gt;   consultation_fee: float): None&lt;br&gt;+consultation_fee: float «property + setter»&lt;br&gt;+validate(): bool&lt;br&gt;+display_info(): str&lt;br&gt;+calculate_fee(): float" vertex="1">
+          <mxGeometry height="97" width="220" y="47" as="geometry" />
+        </mxCell>
+        <mxCell id="Doctor" parent="1" style="swimlane;fontStyle=0;align=center;verticalAlign=top;horizontal=1;startSize=22;collapsible=0;fontSize=10;fillColor=#EEF3FF;strokeColor=#8C9ADB;swimlaneFillColor=#EEF3FF;" value="Doctor" vertex="1">
+          <mxGeometry height="183" width="205" x="480" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="Doctor_a" parent="Doctor" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;fontSize=9;whiteSpace=wrap;" value="#_doctor_id: str&lt;br&gt;#_full_name: str&lt;br&gt;#_specialty: str" vertex="1">
+          <mxGeometry height="43" width="205" y="22" as="geometry" />
+        </mxCell>
+        <mxCell id="Doctor_l" parent="Doctor" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;points=[];strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="205" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="Doctor_m" parent="Doctor" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;fontSize=9;whiteSpace=wrap;" value="+__init__(doctor_id: str, full_name: str,&lt;br&gt;   specialty: str): None&lt;br&gt;+doctor_id: str «read-only property»&lt;br&gt;+full_name: str «property + setter»&lt;br&gt;+specialty: str «property + setter»&lt;br&gt;+validate(): bool&lt;br&gt;+__str__(): str&lt;br&gt;+display_info(): str" vertex="1">
+          <mxGeometry height="110" width="205" y="73" as="geometry" />
+        </mxCell>
+        <mxCell id="MedicalRecord" parent="1" style="swimlane;fontStyle=0;align=center;verticalAlign=top;horizontal=1;startSize=22;collapsible=0;fontSize=10;fillColor=#FFF3E6;strokeColor=#E0B88F;swimlaneFillColor=#FFF3E6;" value="MedicalRecord" vertex="1">
+          <mxGeometry height="274" width="300" x="780" y="453" as="geometry" />
+        </mxCell>
+        <mxCell id="MedicalRecord_a" parent="MedicalRecord" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;fontSize=9;whiteSpace=wrap;" value="#_record_id: str&lt;br&gt;#_patient_id: str&lt;br&gt;#_doctor_id: str&lt;br&gt;#_visit_date: date&lt;br&gt;#_diagnosis: str&lt;br&gt;#_fee_at_visit: Optional[float]" vertex="1">
+          <mxGeometry height="82" width="300" y="22" as="geometry" />
+        </mxCell>
+        <mxCell id="MedicalRecord_l" parent="MedicalRecord" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;points=[];strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="300" y="104" as="geometry" />
+        </mxCell>
+        <mxCell id="MedicalRecord_m" parent="MedicalRecord" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;fontSize=9;whiteSpace=wrap;" value="+__init__(record_id: str, patient_id: str,&lt;br&gt;   doctor_id: str, visit_date: date,&lt;br&gt;   diagnosis: str, fee_at_visit: Optional[float] = None): None&lt;br&gt;+record_id: str «read-only property»&lt;br&gt;+patient_id: str «read-only property»&lt;br&gt;+doctor_id: str «property + setter»&lt;br&gt;+visit_date: date «property + setter»&lt;br&gt;+diagnosis: str «property + setter»&lt;br&gt;+fee_at_visit: Optional[float] «property + setter»&lt;br&gt;+validate(): bool&lt;br&gt;+__str__(): str&lt;br&gt;+display_info(): str" vertex="1">
+          <mxGeometry height="162" width="300" y="112" as="geometry" />
+        </mxCell>
+        <mxCell id="PatientManager" parent="1" style="swimlane;fontStyle=0;align=center;verticalAlign=top;horizontal=1;startSize=22;collapsible=0;fontSize=10;fillColor=#DDEBFA;strokeColor=#8FB4DE;swimlaneFillColor=#DDEBFA;" value="PatientManager" vertex="1">
+          <mxGeometry height="430" width="370" x="40" y="369" as="geometry" />
+        </mxCell>
+        <mxCell id="PM_a" parent="PatientManager" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;fontSize=9;whiteSpace=wrap;" value="-patients: list[Patient]&lt;br&gt;-doctors: list[Doctor]&lt;br&gt;-medical_records: list[MedicalRecord]" vertex="1">
+          <mxGeometry height="43" width="370" y="22" as="geometry" />
+        </mxCell>
+        <mxCell id="PM_l" parent="PatientManager" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;points=[];strokeColor=inherit;" value="" vertex="1">
+          <mxGeometry height="8" width="370" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="PM_m" parent="PatientManager" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;fontSize=9;whiteSpace=wrap;" value="+__init__(): None&lt;div align=&quot;center&quot;&gt;Quản lý bệnh nhân&lt;/div&gt;+add_patient(patient: Patient): None&lt;br&gt;+update_patient(patient_id: str, changes: dict): bool&lt;br&gt;+delete_patient(patient_id: str): bool&lt;br&gt;+display_patients(): None&lt;br&gt;+find_patients(keyword: str, search_type: str): list[Patient]&lt;br&gt;+sort_patients(criterion: str, descending: bool): list[Patient]&lt;div align=&quot;center&quot;&gt;Quản lý bác sĩ&lt;/div&gt;+add_doctor(doctor: Doctor): None&lt;br&gt;+update_doctor(doctor_id: str, changes: dict): bool&lt;br&gt;+delete_doctor(doctor_id: str): bool&lt;br&gt;+find_doctor(doctor_id: str): Optional[Doctor]&lt;br&gt;+display_doctors(): None&lt;div align=&quot;center&quot;&gt;Quản lý hồ sơ khám&lt;/div&gt;+create_medical_record(record: MedicalRecord): None&lt;br&gt;+update_medical_record(record_id: str, changes: dict): bool&lt;br&gt;+assign_doctor(record_id: str, doctor_id: str): bool&lt;br&gt;+find_medical_records(keyword: str, search_type: str): list[MedicalRecord]&lt;br&gt;+sort_medical_records(criterion: str, descending: bool): list[MedicalRecord]&lt;br&gt;+display_medical_records(): None&lt;br&gt;+validate_relations(record: MedicalRecord): bool&lt;div align=&quot;center&quot;&gt;Thống kê&lt;/div&gt;+count_visits(): int&lt;br&gt;+total_fee_by_type(): dict&lt;br&gt;+count_patients_by_doctor(doctor_id: str): int&lt;br&gt;+generate_statistical_report(): dict" vertex="1">
+          <mxGeometry height="357" width="370" y="73" as="geometry" />
+        </mxCell>
+        <mxCell id="gen1" edge="1" parent="1" source="Inpatient" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;endSize=12;exitX=0.1;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.07;entryDx=0;entryDy=0;strokeColor=#6E7BA8;" target="Patient">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="gen2" edge="1" parent="1" source="Outpatient" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;endSize=12;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.48;entryDx=0;entryDy=0;strokeColor=#6E7BA8;" target="Patient">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="820" y="363.6" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="agg1" edge="1" parent="1" source="PatientManager" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=diamondThin;startFill=0;startSize=12;endArrow=none;exitX=1;exitY=0.098;exitDx=0;exitDy=0;entryX=0;entryY=0.694;entryDx=0;entryDy=0;strokeColor=#6E7BA8;" target="Patient">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="agg1a" connectable="0" parent="agg1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.7" y="-8" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="agg1b" connectable="0" parent="agg1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.6" y="8" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="agg2" edge="1" parent="1" source="PatientManager" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=diamondThin;startFill=0;startSize=12;endArrow=none;exitX=1;exitY=0.467;exitDx=0;exitDy=0;entryX=0;entryY=0.328;entryDx=0;entryDy=0;strokeColor=#6E7BA8;" target="Doctor">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="480" y="569.8" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="agg2a" connectable="0" parent="agg2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.7008" y="8" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="agg2b" connectable="0" parent="agg2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;labelBackgroundColor=none;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.6" y="8" as="geometry">
+            <mxPoint x="-4" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="agg3" edge="1" parent="1" source="PM_m" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=diamondThin;startFill=0;startSize=12;endArrow=none;exitX=1.003;exitY=0.779;exitDx=0;exitDy=0;entryX=-0.005;entryY=0.954;entryDx=0;entryDy=0;strokeColor=#6E7BA8;entryPerimeter=0;exitPerimeter=0;" target="MedicalRecord_m">
+          <mxGeometry relative="1" x="-0.0212" as="geometry" />
+        </mxCell>
+        <mxCell id="agg3a" connectable="0" parent="agg3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.8995" y="8" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="agg3b" connectable="0" parent="agg3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;labelBackgroundColor=none;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.8478" y="8" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="as1" edge="1" parent="1" source="Patient" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;fontSize=9;exitX=1;exitY=0.85;exitDx=0;exitDy=0;entryX=0.1;entryY=0;entryDx=0;entryDy=0;strokeColor=#6E7BA8;" target="MedicalRecord" value="khám">
+          <mxGeometry relative="1" x="-0.0536" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="685" y="440" />
+              <mxPoint x="810" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="as1a" connectable="0" parent="as1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.8051" y="10" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="as1b" connectable="0" parent="as1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;labelBackgroundColor=none;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.8077" y="-10" as="geometry">
+            <mxPoint x="8" y="-29" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="as2" edge="1" parent="1" source="Doctor" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;fontSize=9;exitX=1;exitY=0.328;exitDx=0;exitDy=0;entryX=0;entryY=0.427;entryDx=0;entryDy=0;strokeColor=#6E7BA8;" target="MedicalRecord" value="phụ trách">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="685" y="570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="as2a" connectable="0" parent="as2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.8" y="8" as="geometry">
+            <mxPoint x="4" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="as2b" connectable="0" parent="as2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;labelBackgroundColor=none;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.8096" y="8" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
