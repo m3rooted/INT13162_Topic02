@@ -1,0 +1,362 @@
+[
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN001",
+    "full_name": "Nguyễn Minh An",
+    "birth_year": 1988,
+    "phone": "0900000001",
+    "admission_date": "2026-11-10",
+    "daily_fee": 750000.0,
+    "days_stayed": 3
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN002",
+    "full_name": "Trần Thu Hà",
+    "birth_year": 1995,
+    "phone": "0900000002",
+    "consultation_fee": 250000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN003",
+    "full_name": "Lê Quốc Bảo",
+    "birth_year": 1972,
+    "phone": "0900000003",
+    "admission_date": "2026-11-14",
+    "daily_fee": 900000.0,
+    "days_stayed": 2
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN004",
+    "full_name": "Phạm Ngọc Mai",
+    "birth_year": 2001,
+    "phone": "0900000004",
+    "consultation_fee": 200000.0
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN005",
+    "full_name": "Đỗ Gia Huy",
+    "birth_year": 1995,
+    "phone": "0900000005",
+    "consultation_fee": 150000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN006",
+    "full_name": "Võ Thanh Trúc",
+    "birth_year": 2002,
+    "phone": "0900000006",
+    "admission_date": "2026-11-16",
+    "daily_fee": 600000.0,
+    "days_stayed": 7
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN007",
+    "full_name": "Bùi Đức Anh",
+    "birth_year": 1965,
+    "phone": "0900000007",
+    "consultation_fee": 250000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN008",
+    "full_name": "Đặng Thùy Linh",
+    "birth_year": 1972,
+    "phone": "0900000008",
+    "admission_date": "2026-11-18",
+    "daily_fee": 800000.0,
+    "days_stayed": 2
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN009",
+    "full_name": "Phan Nhật Nam",
+    "birth_year": 1979,
+    "phone": "0900000009",
+    "consultation_fee": 350000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN010",
+    "full_name": "Hoàng Khánh Vy",
+    "birth_year": 1986,
+    "phone": "0900000010",
+    "admission_date": "2026-11-20",
+    "daily_fee": 500000.0,
+    "days_stayed": 4
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN011",
+    "full_name": "Ngô Thành Đạt",
+    "birth_year": 1993,
+    "phone": "0900000011",
+    "consultation_fee": 200000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN012",
+    "full_name": "Dương Ngọc Anh",
+    "birth_year": 2000,
+    "phone": "0900000012",
+    "admission_date": "2026-11-22",
+    "daily_fee": 700000.0,
+    "days_stayed": 6
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN013",
+    "full_name": "Lý Minh Khang",
+    "birth_year": 1963,
+    "phone": "0900000013",
+    "consultation_fee": 300000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN014",
+    "full_name": "Huỳnh Bảo Châu",
+    "birth_year": 1970,
+    "phone": "0900000014",
+    "admission_date": "2026-11-24",
+    "daily_fee": 900000.0,
+    "days_stayed": 1
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN015",
+    "full_name": "Trương Quang Huy",
+    "birth_year": 1977,
+    "phone": "0900000015",
+    "consultation_fee": 150000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN016",
+    "full_name": "Mai Phương Thảo",
+    "birth_year": 1984,
+    "phone": "0900000016",
+    "admission_date": "2026-11-26",
+    "daily_fee": 600000.0,
+    "days_stayed": 3
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN017",
+    "full_name": "Đinh Tuấn Kiệt",
+    "birth_year": 1991,
+    "phone": "0900000017",
+    "consultation_fee": 250000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN018",
+    "full_name": "Cao Hà My",
+    "birth_year": 1998,
+    "phone": "0900000018",
+    "admission_date": "2026-11-10",
+    "daily_fee": 800000.0,
+    "days_stayed": 5
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN019",
+    "full_name": "Tạ Minh Đức",
+    "birth_year": 1961,
+    "phone": "0900000019",
+    "consultation_fee": 350000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN020",
+    "full_name": "Lâm Thảo Nhi",
+    "birth_year": 1968,
+    "phone": "0900000020",
+    "admission_date": "2026-11-12",
+    "daily_fee": 500000.0,
+    "days_stayed": 7
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN021",
+    "full_name": "Châu Anh Tuấn",
+    "birth_year": 1975,
+    "phone": "0900000021",
+    "consultation_fee": 200000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN022",
+    "full_name": "Vũ Ngọc Diệp",
+    "birth_year": 1982,
+    "phone": "0900000022",
+    "admission_date": "2026-11-14",
+    "daily_fee": 700000.0,
+    "days_stayed": 2
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN023",
+    "full_name": "Phạm Gia Bảo",
+    "birth_year": 1989,
+    "phone": "0900000023",
+    "consultation_fee": 300000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN024",
+    "full_name": "Nguyễn Khánh Ngọc",
+    "birth_year": 1996,
+    "phone": "0900000024",
+    "admission_date": "2026-11-16",
+    "daily_fee": 900000.0,
+    "days_stayed": 4
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN025",
+    "full_name": "Trần Minh Quân",
+    "birth_year": 2003,
+    "phone": "0900000025",
+    "consultation_fee": 150000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN026",
+    "full_name": "Lê Thanh Tâm",
+    "birth_year": 1966,
+    "phone": "0900000026",
+    "admission_date": "2026-11-18",
+    "daily_fee": 600000.0,
+    "days_stayed": 6
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN027",
+    "full_name": "Đặng Quốc Việt",
+    "birth_year": 1973,
+    "phone": "0900000027",
+    "consultation_fee": 250000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN028",
+    "full_name": "Bùi Ngọc Hân",
+    "birth_year": 1980,
+    "phone": "0900000028",
+    "admission_date": "2026-11-20",
+    "daily_fee": 800000.0,
+    "days_stayed": 1
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN029",
+    "full_name": "Hoàng Phúc Khang",
+    "birth_year": 1987,
+    "phone": "0900000029",
+    "consultation_fee": 350000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN030",
+    "full_name": "Võ Diệu Linh",
+    "birth_year": 1994,
+    "phone": "0900000030",
+    "admission_date": "2026-11-22",
+    "daily_fee": 500000.0,
+    "days_stayed": 3
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN031",
+    "full_name": "Ngô Hải Đăng",
+    "birth_year": 2001,
+    "phone": "0900000031",
+    "consultation_fee": 200000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN032",
+    "full_name": "Dương Bảo Ngọc",
+    "birth_year": 1964,
+    "phone": "0900000032",
+    "admission_date": "2026-11-24",
+    "daily_fee": 700000.0,
+    "days_stayed": 5
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN033",
+    "full_name": "Huỳnh Tuấn Anh",
+    "birth_year": 1971,
+    "phone": "0900000033",
+    "consultation_fee": 300000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN034",
+    "full_name": "Đỗ Thùy Dương",
+    "birth_year": 1978,
+    "phone": "0900000034",
+    "admission_date": "2026-11-26",
+    "daily_fee": 900000.0,
+    "days_stayed": 7
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN035",
+    "full_name": "Phan Gia Khánh",
+    "birth_year": 1985,
+    "phone": "0900000035",
+    "consultation_fee": 150000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN036",
+    "full_name": "Mai Nhật Hạ",
+    "birth_year": 1992,
+    "phone": "0900000036",
+    "admission_date": "2026-11-10",
+    "daily_fee": 600000.0,
+    "days_stayed": 2
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN037",
+    "full_name": "Lý Hoàng Phúc",
+    "birth_year": 1999,
+    "phone": "0900000037",
+    "consultation_fee": 250000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN038",
+    "full_name": "Trương Minh Châu",
+    "birth_year": 1962,
+    "phone": "0900000038",
+    "admission_date": "2026-11-12",
+    "daily_fee": 800000.0,
+    "days_stayed": 4
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN039",
+    "full_name": "Cao Quốc Khánh",
+    "birth_year": 1969,
+    "phone": "0900000039",
+    "consultation_fee": 350000.0
+  },
+  {
+    "patient_type": "inpatient",
+    "patient_id": "BN040",
+    "full_name": "Tạ Ngọc Trâm",
+    "birth_year": 1976,
+    "phone": "0900000040",
+    "admission_date": "2026-11-14",
+    "daily_fee": 500000.0,
+    "days_stayed": 6
+  }
+]

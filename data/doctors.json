@@ -1,0 +1,102 @@
+[
+  {
+    "doctor_id": "BS001",
+    "full_name": "Nguyễn Hoàng Long",
+    "specialty": "Nội khoa"
+  },
+  {
+    "doctor_id": "BS002",
+    "full_name": "Trần Thảo Vy",
+    "specialty": "Nhi khoa"
+  },
+  {
+    "doctor_id": "BS003",
+    "full_name": "Lê Thanh Tùng",
+    "specialty": "Tim mạch"
+  },
+  {
+    "doctor_id": "BS004",
+    "full_name": "Phạm Hữu Phước",
+    "specialty": "Nội khoa"
+  },
+  {
+    "doctor_id": "BS005",
+    "full_name": "Nguyễn Thị Bích Ngọc",
+    "specialty": "Ngoại khoa"
+  },
+  {
+    "doctor_id": "BS006",
+    "full_name": "Trần Quốc Hưng",
+    "specialty": "Nhi khoa"
+  },
+  {
+    "doctor_id": "BS007",
+    "full_name": "Lê Hoàng Yến",
+    "specialty": "Tim mạch"
+  },
+  {
+    "doctor_id": "BS008",
+    "full_name": "Võ Minh Khôi",
+    "specialty": "Da liễu"
+  },
+  {
+    "doctor_id": "BS009",
+    "full_name": "Đặng Thị Hồng",
+    "specialty": "Tai mũi họng"
+  },
+  {
+    "doctor_id": "BS010",
+    "full_name": "Bùi Thanh Phong",
+    "specialty": "Thần kinh"
+  },
+  {
+    "doctor_id": "BS011",
+    "full_name": "Hoàng Thu Trang",
+    "specialty": "Sản phụ khoa"
+  },
+  {
+    "doctor_id": "BS012",
+    "full_name": "Đỗ Thành Công",
+    "specialty": "Mắt"
+  },
+  {
+    "doctor_id": "BS013",
+    "full_name": "Ngô Mỹ Duyên",
+    "specialty": "Nội khoa"
+  },
+  {
+    "doctor_id": "BS014",
+    "full_name": "Phan Văn Bình",
+    "specialty": "Ngoại khoa"
+  },
+  {
+    "doctor_id": "BS015",
+    "full_name": "Dương Thị Kim Chi",
+    "specialty": "Nhi khoa"
+  },
+  {
+    "doctor_id": "BS016",
+    "full_name": "Lý Quốc Thịnh",
+    "specialty": "Tim mạch"
+  },
+  {
+    "doctor_id": "BS017",
+    "full_name": "Huỳnh Thị Lan",
+    "specialty": "Da liễu"
+  },
+  {
+    "doctor_id": "BS018",
+    "full_name": "Trương Đức Thắng",
+    "specialty": "Tai mũi họng"
+  },
+  {
+    "doctor_id": "BS019",
+    "full_name": "Mai Thanh Hà",
+    "specialty": "Thần kinh"
+  },
+  {
+    "doctor_id": "BS020",
+    "full_name": "Đinh Quang Vinh",
+    "specialty": "Sản phụ khoa"
+  }
+]
