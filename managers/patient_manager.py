@@ -31,7 +31,7 @@ class PatientManager:
         self.patients.append(patient)
 
     def update_patient(self, patient_id, changes):
-        """Cập nhật thông tin bệnh nhân qua dict changes; trả về True nếu thành công."""
+        """Cập nhật thông tin bệnh nhân qua dict changes; lỗi ở trường nào thì không sửa trường nào."""
         patient = self._find_by_id(patient_id)
         if patient is None:
             raise ValueError(f"Không tìm thấy bệnh nhân có mã '{patient_id}'.")
@@ -46,17 +46,30 @@ class PatientManager:
         elif isinstance(patient, Outpatient):
             allowed_fields.update({"consultation_fee"})
 
-        for field, value in changes.items():
+        # Lưu giá trị cũ để hoàn tác nếu có trường phía sau bị lỗi.
+        old_values = {}
+        for field in changes:
             if field == "patient_id":
                 raise ValueError("Không được phép thay đổi mã bệnh nhân sau khi tạo.")
             if field not in allowed_fields:
                 raise ValueError(
                     f"Trường '{field}' không hợp lệ hoặc không áp dụng cho loại bệnh nhân này."
                 )
-            setattr(patient, field, value)
+            old_values[field] = getattr(patient, field)
 
-        if hasattr(patient, "validate") and not patient.validate():
-            raise ValueError(f"Dữ liệu sau cập nhật của bệnh nhân '{patient_id}' không hợp lệ.")
+        try:
+            for field, value in changes.items():
+                setattr(patient, field, value)
+
+            if hasattr(patient, "validate") and not patient.validate():
+                raise ValueError(
+                    f"Dữ liệu sau cập nhật của bệnh nhân '{patient_id}' không hợp lệ."
+                )
+        except Exception:
+            # Gặp lỗi thì trả lại toàn bộ giá trị ban đầu để tránh sửa dở dang.
+            for field, old_val in old_values.items():
+                setattr(patient, field, old_val)
+            raise
 
         return True
 
