@@ -49,7 +49,7 @@ class PatientManager:
 
     # ---------------- TẠO HỒ SƠ ----------------
 
-    def create_medical_record(self, record: MedicalRecord) -> None:
+    def add_record(self, record: MedicalRecord) -> None:
         """
         Thêm hồ sơ khám mới.
 
@@ -76,7 +76,7 @@ class PatientManager:
 
     # ---------------- CẬP NHẬT HỒ SƠ ----------------
 
-    def update_medical_record(
+    def update_record(
         self,
         record_id: str,
         changes: dict
@@ -194,7 +194,7 @@ class PatientManager:
 
     # ---------------- TÌM KIẾM HỒ SƠ ----------------
 
-    def find_medical_records(
+    def search_records(
         self,
         keyword: str,
         search_type: str
@@ -282,7 +282,7 @@ class PatientManager:
 
     # ---------------- SẮP XẾP HỒ SƠ ----------------
 
-    def sort_medical_records(
+    def sort_records(
         self,
         criterion: str,
         descending: bool = False
