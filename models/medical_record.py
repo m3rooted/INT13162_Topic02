@@ -12,8 +12,18 @@ class MedicalRecord:
                  doctor_id: str, visit_date: date,
                  diagnosis: str,
                  fee_at_visit: Optional[float] = None):
-        self._record_id = record_id
-        self._patient_id = patient_id
+
+        # Kiem tra ma ho so
+        if not isinstance(record_id, str) or not record_id.strip():
+            raise ValueError("Ma ho so khong duoc de trong!")
+
+        # Kiem tra ma benh nhan
+        if not isinstance(patient_id, str) or not patient_id.strip():
+            raise ValueError("Ma benh nhan khong duoc de trong!")
+
+        self._record_id = record_id.strip()
+        self._patient_id = patient_id.strip()
+
         self.doctor_id = doctor_id
         self.visit_date = visit_date
         self.diagnosis = diagnosis
@@ -22,79 +32,132 @@ class MedicalRecord:
         if not self.validate():
             raise ValueError("Ho so kham benh khong hop le!")
 
-    # Ma ho so chi doc
+    # ==========================================
+    # MA HO SO - CHI DOC
+    # ==========================================
+
     @property
     def record_id(self) -> str:
         return self._record_id
 
-    # Ma benh nhan chi doc
+    # ==========================================
+    # MA BENH NHAN - CHI DOC
+    # ==========================================
+
     @property
     def patient_id(self) -> str:
         return self._patient_id
 
-    # Ma bac si phu trach
+    # ==========================================
+    # MA BAC SI PHU TRACH
+    # ==========================================
+
     @property
     def doctor_id(self) -> str:
         return self._doctor_id
 
     @doctor_id.setter
     def doctor_id(self, value: str):
+
         if not isinstance(value, str) or not value.strip():
             raise ValueError("Ma bac si khong duoc de trong!")
+
         self._doctor_id = value.strip()
 
-    # Ngay kham benh
+    # ==========================================
+    # NGAY KHAM BENH
+    # ==========================================
+
     @property
     def visit_date(self) -> date:
         return self._visit_date
 
     @visit_date.setter
     def visit_date(self, value: date):
-        if not isinstance(value, date) or value > date.today():
+
+        if type(value) is not date or value > date.today():
             raise ValueError("Ngay kham khong hop le!")
+
         self._visit_date = value
 
-    # Chan doan benh
+    # ==========================================
+    # CHAN DOAN BENH
+    # ==========================================
+
     @property
     def diagnosis(self) -> str:
         return self._diagnosis
 
     @diagnosis.setter
     def diagnosis(self, value: str):
+
         if not isinstance(value, str) or not value.strip():
             raise ValueError("Chan doan khong duoc de trong!")
+
         self._diagnosis = value.strip()
 
-    # Chi phi tai thoi diem kham
+    # ==========================================
+    # CHI PHI TAI THOI DIEM KHAM
+    # ==========================================
+
     @property
     def fee_at_visit(self) -> Optional[float]:
         return self._fee_at_visit
 
     @fee_at_visit.setter
     def fee_at_visit(self, value: Optional[float]):
+
         if value is not None:
-            if (not isinstance(value, (int, float)) or isinstance(value, bool)
-                    or value < 0):
+
+            if (
+                not isinstance(value, (int, float))
+                or isinstance(value, bool)
+                or value < 0
+            ):
                 raise ValueError("Chi phi kham phai la so khong am!")
+
             value = float(value)
+
         self._fee_at_visit = value
 
-    # Kiem tra tinh hop le cua ho so
+    # ==========================================
+    # VALIDATION
+    # ==========================================
+
     def validate(self) -> bool:
+
         return (
             isinstance(self._record_id, str)
             and bool(self._record_id.strip())
+
             and isinstance(self._patient_id, str)
             and bool(self._patient_id.strip())
+
+            and isinstance(self._doctor_id, str)
             and bool(self._doctor_id.strip())
-            and isinstance(self._visit_date, date)
+
+            and type(self._visit_date) is date
             and self._visit_date <= date.today()
+
+            and isinstance(self._diagnosis, str)
             and bool(self._diagnosis.strip())
-            and (self._fee_at_visit is None or self._fee_at_visit >= 0)
+
+            and (
+                self._fee_at_visit is None
+                or (
+                    isinstance(self._fee_at_visit, (int, float))
+                    and not isinstance(self._fee_at_visit, bool)
+                    and self._fee_at_visit >= 0
+                )
+            )
         )
 
-    # Hien thi thong tin ho so
+    # ==========================================
+    # HIEN THI THONG TIN HO SO
+    # ==========================================
+
     def display_info(self) -> str:
+
         fee = (
             f"{self.fee_at_visit:,.0f} VND"
             if self.fee_at_visit is not None
@@ -110,5 +173,10 @@ class MedicalRecord:
             f"Chi phi: {fee}"
         )
 
+    # ==========================================
+    # CHUYEN DOI DOI TUONG THANH CHUOI
+    # ==========================================
+
     def __str__(self) -> str:
+
         return f"{self.record_id} - {self.patient_id}"
