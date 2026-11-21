@@ -10,19 +10,35 @@ OUTPATIENT = "outpatient"    # Ngoại trú
 
 
 # =====================================================================
+# 0. HÀM HỖ TRỢ: ĐỌC DỮ LIỆU TỪ DICT (JSON) HOẶC ĐỐI TƯỢNG
+# =====================================================================
+
+def _get(item, field, default=None):
+    # Nếu là dict (dữ liệu đọc thẳng từ JSON) thì lấy theo khóa
+    if isinstance(item, dict):
+        return item.get(field, default)
+
+    # Nếu là đối tượng (Patient, Doctor, MedicalRecord) thì lấy theo thuộc tính
+    return getattr(item, field, default)
+
+
+# =====================================================================
 # 1. NHẬN DIỆN LOẠI BỆNH NHÂN
 # =====================================================================
 
 def get_patient_type(patient):
-    # Lấy tên lớp (vd: Inpatient) rồi đổi thành chữ thường (inpatient)
-    class_name = type(patient).__name__.lower()
+    # Dict: lấy từ trường patient_type; đối tượng: lấy từ tên lớp (Inpatient -> inpatient)
+    if isinstance(patient, dict):
+        patient_type = patient.get("patient_type", "")
+    else:
+        patient_type = type(patient).__name__.lower()
 
     # Chỉ chấp nhận đúng hai loại bệnh nhân
-    if class_name in (INPATIENT, OUTPATIENT):
-        return class_name
+    if patient_type in (INPATIENT, OUTPATIENT):
+        return patient_type
 
-    # Loại khác (vd: lớp Patient gốc) -> báo lỗi thay vì tính sai
-    raise ValueError(f"Không xác định được loại bệnh nhân: {type(patient).__name__}")
+    # Loại khác -> báo lỗi thay vì tính sai
+    raise ValueError(f"Không xác định được loại bệnh nhân: {patient_type!r}")
 
 
 # =====================================================================
@@ -49,8 +65,16 @@ def calculate_outpatient_fee(consultation_fee):
 
 
 def calculate_patient_fee(patient):
-    # Mỗi lớp con tự cài calculate_fee() nên không cần kiểm tra loại (đa hình)
-    return float(patient.calculate_fee())
+    # Đối tượng: mỗi lớp con tự cài calculate_fee() nên gọi thẳng (đa hình)
+    if not isinstance(patient, dict):
+        return float(patient.calculate_fee())
+
+    # Dict (từ JSON): tự tính theo loại bệnh nhân
+    if get_patient_type(patient) == INPATIENT:
+        return calculate_inpatient_fee(
+            patient.get("daily_fee", 0), patient.get("days_stayed", 0)
+        )
+    return calculate_outpatient_fee(patient.get("consultation_fee", 0))
 
 
 # =====================================================================
@@ -76,22 +100,24 @@ def count_patients_by_type(patients):
 def count_patients_by_doctor(records, doctor_id):
     # Set chỉ giữ mã bệnh nhân duy nhất, nên khám nhiều lần vẫn tính một
     unique_patients = {
-        record.patient_id
+        _get(record, "patient_id")
         for record in records
-        if record.doctor_id == doctor_id
+        if _get(record, "doctor_id") == doctor_id
     }
     return len(unique_patients)
 
 
 def count_visits_by_doctor(records, doctors):
     # Bước 1: mỗi bác sĩ bắt đầu từ 0 (bác sĩ chưa khám vẫn xuất hiện)
-    counts = {doctor.doctor_id: 0 for doctor in doctors}
+    counts = {_get(doctor, "doctor_id"): 0 for doctor in doctors}
 
     # Bước 2: duyệt từng hồ sơ, cộng một lượt cho bác sĩ phụ trách
     for record in records:
+        doctor_id = _get(record, "doctor_id")
+
         # Bỏ qua hồ sơ trỏ tới bác sĩ không tồn tại
-        if record.doctor_id in counts:
-            counts[record.doctor_id] += 1
+        if doctor_id in counts:
+            counts[doctor_id] += 1
 
     return counts
 
@@ -117,9 +143,9 @@ def total_fee_by_type(patients):
 def total_fee_from_records(records):
     # Chỉ cộng hồ sơ đã có phí, tránh lỗi khi gặp None
     return sum(
-        record.fee_at_visit
+        _get(record, "fee_at_visit")
         for record in records
-        if record.fee_at_visit is not None
+        if _get(record, "fee_at_visit") is not None
     )
 
 
@@ -148,7 +174,9 @@ def generate_statistical_report(patients, doctors, records):
 
         # Số bệnh nhân khác nhau của mỗi bác sĩ
         "patients_by_doctor": {
-            doctor.doctor_id: count_patients_by_doctor(records, doctor.doctor_id)
+            _get(doctor, "doctor_id"): count_patients_by_doctor(
+                records, _get(doctor, "doctor_id")
+            )
             for doctor in doctors
         },
     }
@@ -181,5 +209,3 @@ def format_report(report):
 
     # Nối các dòng bằng ký tự xuống dòng
     return "\n".join(lines)
-
-
