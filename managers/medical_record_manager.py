@@ -137,16 +137,18 @@ class PatientManager:
             # Trả về False
             return False
 
-        # Tập hợp các trường được phép cập nhật (không cho sửa record_id)
+        # Tập hợp các trường được phép cập nhật.
+        # LƯU Ý: record_id và patient_id là thuộc tính CHỈ ĐỌC trong MedicalRecord
+        # (chỉ có @property, không có @setter) nên KHÔNG được phép sửa.
+        # Nghiệp vụ: một hồ sơ khám đã tạo không được chuyển sang bệnh nhân khác.
         allowed_fields = {
-            "patient_id",       # Mã bệnh nhân
             "doctor_id",        # Mã bác sĩ
             "visit_date",       # Ngày khám
             "diagnosis",        # Chẩn đoán
             "fee_at_visit"      # Chi phí khám
         }
 
-        # Không cho sửa mã hồ sơ và trường không tồn tại
+        # Không cho sửa mã hồ sơ, mã bệnh nhân và các trường không tồn tại
         # Kiểm tra: các key trong changes có nằm trong allowed_fields không
         if not set(changes).issubset(allowed_fields):
             # In thông báo có trường không được phép
@@ -157,7 +159,8 @@ class PatientManager:
         # Tạo hồ sơ tạm để kiểm tra trước khi thay đổi dữ liệu thật
         # Tạo dict chứa giá trị hiện tại của hồ sơ
         new_values = {
-            # Lấy patient_id hiện tại
+            # Lấy patient_id hiện tại (vẫn phải truyền vào constructor vì là tham số bắt buộc,
+            # nhưng giá trị này không bao giờ bị thay đổi)
             "patient_id": record.patient_id,
             # Lấy doctor_id hiện tại
             "doctor_id": record.doctor_id,
@@ -181,7 +184,7 @@ class PatientManager:
                 # Bung các key-value trong new_values ra làm tham số
                 **new_values
             )
-        # Bắt lỗi nếu dữ liệu mới sai định dạng
+        # Bắt lỗi nếu dữ liệu mới sai định dạng (các setter của MedicalRecord ném ValueError)
         except (ValueError, TypeError):
             # In thông báo dữ liệu không hợp lệ
             print("Dữ liệu cập nhật không hợp lệ.")
@@ -196,8 +199,8 @@ class PatientManager:
             return False
 
         # Chỉ cập nhật khi toàn bộ dữ liệu hợp lệ
-        # Gán patient_id mới vào hồ sơ thật
-        record.patient_id = updated_record.patient_id
+        # Chỉ gán các trường CÓ setter. KHÔNG gán patient_id vì nó chỉ đọc
+        # (gán vào sẽ gây AttributeError).
         # Gán doctor_id mới vào hồ sơ thật
         record.doctor_id = updated_record.doctor_id
         # Gán visit_date mới vào hồ sơ thật
@@ -256,8 +259,16 @@ class PatientManager:
             # Trả về False
             return False
 
-        # Gán doctor_id mới vào hồ sơ
-        record.doctor_id = doctor_id
+        # Gán doctor_id mới vào hồ sơ (doctor_id có setter nên gán trực tiếp được)
+        try:
+            # Setter sẽ tự kiểm tra giá trị và ném ValueError nếu rỗng/sai kiểu
+            record.doctor_id = doctor_id
+        # Bắt lỗi nếu mã bác sĩ không hợp lệ
+        except (ValueError, TypeError):
+            # In thông báo mã bác sĩ không hợp lệ
+            print("Mã bác sĩ không hợp lệ.")
+            # Trả về False
+            return False
 
         # In thông báo phân công thành công
         print("Phân công bác sĩ thành công.")
