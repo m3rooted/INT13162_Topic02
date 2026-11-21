@@ -4,6 +4,10 @@ Phụ trách: Nguyễn Văn Chung — quản lý hồ sơ khám
 hiển thị, kiểm tra liên kết).
 """
 
+# Import thư viện json để đọc/ghi dữ liệu 
+import json
+from datetime import date
+
 # Import lớp đối tượng MedicalRecord từ file models/medical_record.py
 from models.medical_record import MedicalRecord
 
@@ -532,3 +536,145 @@ class PatientManager:
         print(separator)
         # In tổng số hồ sơ
         print(f"Tổng số hồ sơ: {len(self.medical_records)}")
+
+    # ---------------- ĐỌC / GHI JSON ----------------
+
+    # Chuyển một hồ sơ thành dict để ghi ra JSON
+    @staticmethod
+    def _record_to_dict(record: MedicalRecord) -> dict:
+        """Chuyển MedicalRecord thành dict (ngày khám lưu dạng YYYY-MM-DD)."""
+
+        return {
+            # Mã hồ sơ
+            "record_id": record.record_id,
+            # Mã bệnh nhân
+            "patient_id": record.patient_id,
+            # Mã bác sĩ
+            "doctor_id": record.doctor_id,
+            # JSON không có kiểu ngày nên lưu dạng chuỗi ISO, ví dụ "2026-11-10"
+            "visit_date": record.visit_date.isoformat(),
+            # Chẩn đoán
+            "diagnosis": record.diagnosis,
+            # Chi phí (None sẽ thành null trong JSON)
+            "fee_at_visit": record.fee_at_visit
+        }
+
+    # Tạo lại một hồ sơ từ dict đọc được trong JSON
+    @staticmethod
+    def _record_from_dict(row: dict) -> MedicalRecord:
+        """Tạo MedicalRecord từ dict. Ném lỗi nếu thiếu trường hoặc sai định dạng."""
+
+        return MedicalRecord(
+            # Các trường bắt buộc: thiếu thì KeyError
+            row["record_id"],
+            row["patient_id"],
+            row["doctor_id"],
+            # Chuỗi YYYY-MM-DD -> date (sai định dạng thì ValueError)
+            date.fromisoformat(row["visit_date"]),
+            row["diagnosis"],
+            # Chi phí không bắt buộc, thiếu thì coi như None
+            row.get("fee_at_visit")
+        )
+
+    # Hàm nạp danh sách hồ sơ từ file JSON
+    def load_from_json(self, path) -> bool:
+        """
+        Nạp hồ sơ khám từ file JSON (key "medical_records").
+
+        Từng hồ sơ đều được kiểm tra hợp lệ, trùng mã và liên kết
+        bệnh nhân/bác sĩ. Hồ sơ lỗi bị bỏ qua và có thông báo.
+        Danh sách hiện tại chỉ bị thay thế khi đọc file thành công.
+        """
+
+        # Đọc file; utf-8-sig để chịu được file JSON có BOM
+        try:
+            with open(path, "r", encoding="utf-8-sig") as file:
+                data = json.load(file)
+        # Không có file, không đọc được hoặc JSON sai cú pháp
+        except (OSError, json.JSONDecodeError):
+            print("Không đọc được file dữ liệu.")
+            return False
+
+        # File phải là object có key "medical_records" chứa một list
+        rows = data.get("medical_records") if isinstance(data, dict) else None
+        if not isinstance(rows, list):
+            print("File dữ liệu thiếu danh sách medical_records.")
+            return False
+
+        # Danh sách tạm, chỉ gán vào self.medical_records khi xử lý xong
+        loaded = []
+        # Tập mã hồ sơ đã nạp để phát hiện trùng
+        seen_ids = set()
+        # Đếm số hồ sơ bị bỏ qua
+        skipped = 0
+
+        # Duyệt từng dòng dữ liệu trong file
+        for row in rows:
+            try:
+                # Dựng đối tượng hồ sơ (constructor tự kiểm tra dữ liệu)
+                record = self._record_from_dict(row)
+            # Thiếu trường, sai kiểu, sai ngày, row không phải dict...
+            except (ValueError, TypeError, KeyError, AttributeError):
+                skipped += 1
+                continue
+
+            # Bỏ qua nếu trùng mã hồ sơ hoặc bệnh nhân/bác sĩ không tồn tại
+            if record.record_id in seen_ids or not self.validate_relations(record):
+                skipped += 1
+                continue
+
+            # Hồ sơ hợp lệ -> ghi nhận
+            seen_ids.add(record.record_id)
+            loaded.append(record)
+
+        # Thay danh sách hiện tại bằng danh sách vừa nạp
+        self.medical_records = loaded
+        # Thông báo kết quả
+        print(f"Đã nạp {len(loaded)} hồ sơ khám.")
+        if skipped:
+            print(f"Bỏ qua {skipped} hồ sơ không hợp lệ.")
+        return True
+
+    # Hàm lưu danh sách hồ sơ ra file JSON
+    def save_to_json(self, path) -> bool:
+        """
+        Lưu hồ sơ khám vào file JSON (key "medical_records").
+
+        Nếu file đã có và là object JSON thì giữ nguyên các key khác
+        trong file, chỉ thay phần "medical_records".
+        """
+
+        # Dữ liệu nền: giữ lại nội dung cũ của file (nếu có) để không làm mất key khác
+        data = {}
+        try:
+            with open(path, "r", encoding="utf-8-sig") as file:
+                existing = json.load(file)
+            if isinstance(existing, dict):
+                data = existing
+        # File chưa có hoặc không đọc được -> ghi file mới
+        except (OSError, json.JSONDecodeError):
+            pass
+
+        # Ghi danh sách hồ sơ hiện tại vào key "medical_records"
+        data["medical_records"] = [
+            self._record_to_dict(record) for record in self.medical_records
+        ]
+
+        # Tạo chuỗi JSON trước khi mở file để lỗi chuyển đổi không làm hỏng file cũ
+        try:
+            content = json.dumps(data, ensure_ascii=False, indent=2)
+        except (TypeError, ValueError):
+            print("Dữ liệu hồ sơ không thể chuyển sang JSON.")
+            return False
+
+        # Ghi ra file (utf-8, giữ nguyên tiếng Việt có dấu)
+        try:
+            with open(path, "w", encoding="utf-8") as file:
+                file.write(content + "\n")
+        except OSError:
+            print("Không ghi được file dữ liệu.")
+            return False
+
+        # Thông báo lưu thành công
+        print("Lưu hồ sơ khám thành công.")
+        return True
