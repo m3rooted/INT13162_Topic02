@@ -264,10 +264,6 @@ def _assign_doctor(manager):
     manager.assign_doctor(record_id, doctor_id)
 
 
-def _delete_record_unavailable():
-    print("Chức năng xóa chưa được cung cấp bởi manager hồ sơ.")
-
-
 def _search_records(manager):
     kind = input(
         "record_id/patient_id/patient_name/doctor_id/doctor_name: "
@@ -296,9 +292,8 @@ def _record_menu(manager):
             "2": ("Thêm", lambda: _add_record(manager)),
             "3": ("Cập nhật", lambda: _update_record(manager)),
             "4": ("Phân công bác sĩ", lambda: _assign_doctor(manager)),
-            "5": ("Xóa (chưa hỗ trợ)", _delete_record_unavailable),
-            "6": ("Tìm kiếm", lambda: _search_records(manager)),
-            "7": ("Sắp xếp", lambda: _sort_records(manager)),
+            "5": ("Tìm kiếm", lambda: _search_records(manager)),
+            "6": ("Sắp xếp", lambda: _sort_records(manager)),
         },
     )
 
@@ -311,7 +306,13 @@ def _show_report(patients, doctors, records):
         doctors.get_all(),
         records.medical_records,
     )
-    print(format_report(report))
+    report_text = format_report(report)
+    visible_lines = [
+        line
+        for line in report_text.splitlines()
+        if not line.startswith("Tổng phí ghi nhận tại các lượt khám:")
+    ]
+    print("\n".join(visible_lines))
 
 
 def main():
