@@ -10,12 +10,11 @@ from datetime import date
 
 from models.medical_record import MedicalRecord
 
-
+"""Quản lý danh sách hồ sơ khám bệnh."""
 class MedicalRecordManager:
-    """Quản lý danh sách hồ sơ khám bệnh."""
 
+    """Khởi tạo MedicalRecordManager."""
     def __init__(self, patients=None, doctors=None, medical_record_file=None):
-        """Khởi tạo MedicalRecordManager."""
 
         # Xác định thư mục gốc của dự án
         project_dir = Path(__file__).resolve().parent.parent
@@ -44,8 +43,8 @@ class MedicalRecordManager:
     # HÀM HỖ TRỢ 1: ĐỌC FILE JSON
     # ==================================================
 
+    """Đọc dữ liệu từ file JSON."""
     def _read_json(self):
-        """Đọc dữ liệu từ file JSON."""
 
         try:
             with open(self.medical_record_file, "r", encoding="utf-8-sig") as file:
@@ -72,8 +71,8 @@ class MedicalRecordManager:
     # HÀM HỖ TRỢ 2: LƯU FILE JSON
     # ==================================================
 
+    """Lưu danh sách hồ sơ khám bệnh vào JSON."""
     def _save_medical_records(self):
-        """Lưu danh sách hồ sơ khám bệnh vào JSON."""
 
         temp_file = self.medical_record_file.with_name(self.medical_record_file.name + ".tmp")
 
@@ -117,8 +116,8 @@ class MedicalRecordManager:
     # HÀM HỖ TRỢ 3: ĐỌC DỮ LIỆU TỪ JSON
     # ==================================================
 
+    """Chuyển dữ liệu JSON thành danh sách MedicalRecord."""
     def _load_medical_records(self):
-        """Chuyển dữ liệu JSON thành danh sách MedicalRecord."""
 
         data = self._read_json()
 
@@ -174,8 +173,8 @@ class MedicalRecordManager:
     # 1. CREATE MEDICAL RECORD
     # ==================================================
 
+    """Thêm hồ sơ khám bệnh mới."""
     def create_medical_record(self, record: MedicalRecord) -> None:
-        """Thêm hồ sơ khám bệnh mới."""
 
         try:
             # Kiểm tra kiểu dữ liệu
@@ -213,8 +212,8 @@ class MedicalRecordManager:
     # 2. UPDATE MEDICAL RECORD
     # ==================================================
 
+    """Cập nhật thông tin hồ sơ khám bệnh."""
     def update_medical_record(self, record_id: str, changes: dict) -> bool:
-        """Cập nhật thông tin hồ sơ khám bệnh."""
 
         try:
             if not isinstance(changes, dict):
@@ -310,8 +309,8 @@ class MedicalRecordManager:
     # 3. ASSIGN DOCTOR
     # ==================================================
 
+    """Phân công bác sĩ cho hồ sơ khám bệnh."""
     def assign_doctor(self, record_id: str, doctor_id: str) -> bool:
-        """Phân công bác sĩ cho hồ sơ khám bệnh."""
 
         try:
             # Tìm hồ sơ
@@ -350,8 +349,8 @@ class MedicalRecordManager:
     # 4. FIND MEDICAL RECORDS
     # ==================================================
 
+    """Tìm kiếm hồ sơ khám bệnh."""
     def find_medical_records(self, keyword: str, search_type: str) -> list[MedicalRecord]:
-        """Tìm kiếm hồ sơ khám bệnh."""
 
         try:
             if not isinstance(keyword, str):
@@ -420,8 +419,8 @@ class MedicalRecordManager:
     # 5. SORT MEDICAL RECORDS
     # ==================================================
 
+    """Sắp xếp hồ sơ theo ngày khám hoặc chi phí."""
     def sort_medical_records(self, criteria: str, descending: bool) -> list[MedicalRecord]:
-        """Sắp xếp hồ sơ theo ngày khám hoặc chi phí."""
 
         try:
             if not isinstance(criteria, str):
@@ -468,8 +467,8 @@ class MedicalRecordManager:
     # 6. DISPLAY MEDICAL RECORDS
     # ==================================================
 
+    """Hiển thị danh sách hồ sơ khám bệnh."""
     def display_medical_records(self) -> None:
-        """Hiển thị danh sách hồ sơ khám bệnh."""
 
         try:
             if not self.medical_records:
@@ -519,8 +518,8 @@ class MedicalRecordManager:
     # 7. VALIDATE RELATIONS
     # ==================================================
 
+    """Kiểm tra bệnh nhân và bác sĩ có tồn tại không."""
     def validate_relations(self, record: MedicalRecord) -> bool:
-        """Kiểm tra bệnh nhân và bác sĩ có tồn tại không."""
 
         try:
             if not isinstance(record, MedicalRecord):
