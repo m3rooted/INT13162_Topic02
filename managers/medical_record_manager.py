@@ -5,496 +5,540 @@ hiển thị, kiểm tra liên kết).
 """
 
 import json
+from pathlib import Path
 from datetime import date
 
 from models.medical_record import MedicalRecord
 
+"""Quản lý danh sách hồ sơ khám bệnh."""
+class MedicalRecordManager:
 
-# ==========================================================
-# CLASS PATIENT MANAGER - PHẦN QUẢN LÝ HỒ SƠ KHÁM
-# ==========================================================
+    """Khởi tạo MedicalRecordManager."""
+    def __init__(self, patients=None, doctors=None, medical_record_file=None):
 
-class PatientManager:
-    """
-    Phần triển khai các nghiệp vụ hồ sơ khám theo UML.
+        # Xác định thư mục gốc của dự án
+        project_dir = Path(__file__).resolve().parent.parent
 
-    Danh sách patients và doctors được cung cấp từ bên ngoài.
+        # Đường dẫn file JSON lưu hồ sơ khám bệnh
+        self.medical_record_file = Path(medical_record_file) if medical_record_file is not None else project_dir / "data" / "sample_data.json"
 
-    """
-
-    def __init__(self, patients=None, doctors=None):
+        # Nhận danh sách bệnh nhân và bác sĩ từ manager tương ứng
         self.patients = patients if patients is not None else []
         self.doctors = doctors if doctors is not None else []
+
+        # Danh sách lưu các đối tượng MedicalRecord
         self.medical_records = []
 
-    # ---------------- KIỂM TRA LIÊN KẾT ----------------
+        # Tạo thư mục data nếu chưa tồn tại
+        self.medical_record_file.parent.mkdir(parents=True, exist_ok=True)
 
-    def validate_relations(self, record: MedicalRecord) -> bool:
-        """Kiểm tra bệnh nhân và bác sĩ có tồn tại hay không."""
+        # Tạo file JSON nếu chưa tồn tại
+        if not self.medical_record_file.exists():
+            self._save_medical_records()
 
-        if not isinstance(record, MedicalRecord):
+        # Đọc dữ liệu từ JSON
+        self._load_medical_records()
+
+    # ==================================================
+    # HÀM HỖ TRỢ 1: ĐỌC FILE JSON
+    # ==================================================
+
+    """Đọc dữ liệu từ file JSON."""
+    def _read_json(self):
+
+        try:
+            with open(self.medical_record_file, "r", encoding="utf-8-sig") as file:
+                data = json.load(file)
+
+            if not isinstance(data, dict):
+                raise ValueError("Dữ liệu JSON phải có dạng dictionary.")
+
+            return data
+
+        except FileNotFoundError:
+            print("Không tìm thấy file JSON.")
+            return None
+
+        except json.JSONDecodeError as error:
+            print(f"Lỗi định dạng JSON: {error}")
+            return None
+
+        except OSError as error:
+            print(f"Lỗi đọc file: {error}")
+            return None
+
+    # ==================================================
+    # HÀM HỖ TRỢ 2: LƯU FILE JSON
+    # ==================================================
+
+    """Lưu danh sách hồ sơ khám bệnh vào JSON."""
+    def _save_medical_records(self):
+
+        temp_file = self.medical_record_file.with_name(self.medical_record_file.name + ".tmp")
+
+        try:
+            data = {
+                "medical_records": [
+                    {
+                        "record_id": record.record_id,
+                        "patient_id": record.patient_id,
+                        "doctor_id": record.doctor_id,
+                        "visit_date": record.visit_date.isoformat(),
+                        "diagnosis": record.diagnosis,
+                        "fee_at_visit": record.fee_at_visit
+                    }
+                    for record in self.medical_records
+                ]
+            }
+
+            # Ghi dữ liệu vào file tạm trước
+            with open(temp_file, "w", encoding="utf-8") as file:
+                json.dump(data, file, ensure_ascii=False, indent=4)
+
+            # Ghi thành công mới thay thế file chính
+            temp_file.replace(self.medical_record_file)
+
+            return True
+
+        except (OSError, TypeError, ValueError, AttributeError) as error:
+            print(f"Lỗi lưu hồ sơ khám bệnh: {error}")
+
+            # Xóa file tạm nếu có lỗi
+            if temp_file.exists():
+                try:
+                    temp_file.unlink()
+                except OSError:
+                    pass
+
             return False
 
-        patient_exists = any(
-            patient.patient_id == record.patient_id
-            for patient in self.patients
-        )
+    # ==================================================
+    # HÀM HỖ TRỢ 3: ĐỌC DỮ LIỆU TỪ JSON
+    # ==================================================
 
-        doctor_exists = any(
-            doctor.doctor_id == record.doctor_id
-            for doctor in self.doctors
-        )
+    """Chuyển dữ liệu JSON thành danh sách MedicalRecord."""
+    def _load_medical_records(self):
 
-        return patient_exists and doctor_exists
+        data = self._read_json()
 
-    # ---------------- TẠO HỒ SƠ ----------------
-
-    def add_record(self, record: MedicalRecord) -> None:
-        """
-        Thêm hồ sơ khám mới.
-
-        Raises:
-            ValueError: dữ liệu không hợp lệ, trùng mã hồ sơ hoặc
-                bệnh nhân/bác sĩ không tồn tại.
-        """
-
-        if not isinstance(record, MedicalRecord):
-            raise ValueError("Dữ liệu hồ sơ không hợp lệ.")
-
-        if not record.validate():
-            raise ValueError("Thông tin hồ sơ không hợp lệ.")
-
-        for item in self.medical_records:
-            if item.record_id == record.record_id:
-                raise ValueError("Mã hồ sơ đã tồn tại.")
-
-        if not self.validate_relations(record):
-            raise ValueError("Bệnh nhân hoặc bác sĩ không tồn tại.")
-
-        self.medical_records.append(record)
-        print("Thêm hồ sơ khám thành công.")
-
-    # ---------------- CẬP NHẬT HỒ SƠ ----------------
-
-    def update_record(
-        self,
-        record_id: str,
-        changes: dict
-    ) -> bool:
-        """
-        Cập nhật thông tin hồ sơ theo mã. Trả về True khi cập nhật thành công.
-
-        Raises:
-            ValueError: không tìm thấy hồ sơ, thông tin cập nhật không hợp lệ,
-                có trường không được phép sửa hoặc bệnh nhân/bác sĩ không tồn tại.
-        """
-
-        record = next(
-            (
-                item for item in self.medical_records
-                if item.record_id == record_id
-            ),
-            None
-        )
-
-        if record is None:
-            raise ValueError("Không tìm thấy hồ sơ.")
-
-        if not isinstance(changes, dict) or not changes:
-            raise ValueError("Thông tin cập nhật không hợp lệ.")
-
-        # record_id và patient_id là thuộc tính CHỈ ĐỌC trong MedicalRecord
-        # (chỉ có @property, không có @setter) nên không được phép sửa.
-        # Nghiệp vụ: hồ sơ khám đã tạo không được chuyển sang bệnh nhân khác.
-        allowed_fields = {
-            "doctor_id",
-            "visit_date",
-            "diagnosis",
-            "fee_at_visit"
-        }
-
-        if not set(changes).issubset(allowed_fields):
-            raise ValueError("Có trường dữ liệu không được phép cập nhật.")
-
-        # Dựng hồ sơ tạm để kiểm tra dữ liệu mới trước khi sửa hồ sơ thật,
-        # nhờ đó nếu có lỗi thì hồ sơ thật không bị thay đổi dở dang.
-        # patient_id vẫn phải truyền vào constructor (tham số bắt buộc) nhưng không đổi.
-        new_values = {
-            "patient_id": record.patient_id,
-            "doctor_id": record.doctor_id,
-            "visit_date": record.visit_date,
-            "diagnosis": record.diagnosis,
-            "fee_at_visit": record.fee_at_visit
-        }
-
-        new_values.update(changes)
-
-        try:
-            updated_record = MedicalRecord(
-                record_id=record.record_id,
-                **new_values
-            )
-        except (ValueError, TypeError) as error:
-            raise ValueError("Dữ liệu cập nhật không hợp lệ.") from error
-
-        if not self.validate_relations(updated_record):
-            raise ValueError("Bệnh nhân hoặc bác sĩ không tồn tại.")
-
-        # Chỉ gán các trường có setter. Không gán patient_id vì nó chỉ đọc
-        # (gán vào sẽ gây AttributeError).
-        record.doctor_id = updated_record.doctor_id
-        record.visit_date = updated_record.visit_date
-        record.diagnosis = updated_record.diagnosis
-        record.fee_at_visit = updated_record.fee_at_visit
-
-        print("Cập nhật hồ sơ thành công.")
-        return True
-
-    # ---------------- PHÂN CÔNG BÁC SĨ ----------------
-
-    def assign_doctor(
-        self,
-        record_id: str,
-        doctor_id: str
-    ) -> bool:
-        """
-        Phân công bác sĩ cho hồ sơ khám. Trả về True khi phân công thành công.
-
-        Raises:
-            ValueError: không tìm thấy hồ sơ, không tìm thấy bác sĩ
-                hoặc mã bác sĩ không hợp lệ.
-        """
-
-        record = next(
-            (
-                item for item in self.medical_records
-                if item.record_id == record_id
-            ),
-            None
-        )
-
-        if record is None:
-            raise ValueError("Không tìm thấy hồ sơ.")
-
-        doctor_exists = any(
-            doctor.doctor_id == doctor_id
-            for doctor in self.doctors
-        )
-
-        if not doctor_exists:
-            raise ValueError("Không tìm thấy bác sĩ.")
-
-        try:
-            record.doctor_id = doctor_id
-        except (ValueError, TypeError) as error:
-            raise ValueError("Mã bác sĩ không hợp lệ.") from error
-
-        print("Phân công bác sĩ thành công.")
-        return True
-
-    # ---------------- TÌM KIẾM HỒ SƠ ----------------
-
-    def search_records(
-        self,
-        keyword: str,
-        search_type: str
-    ) -> list[MedicalRecord]:
-        """
-        Tìm kiếm theo:
-        - record_id: Mã hồ sơ chính xác.
-        - patient_id: Mã bệnh nhân chính xác.
-        - patient_name: Tên bệnh nhân gần đúng.
-        - doctor_id: Mã bác sĩ chính xác.
-        - doctor_name: Tên bác sĩ gần đúng.
-
-        Trả về danh sách hồ sơ khớp (rỗng nếu không có hồ sơ nào khớp).
-
-        Raises:
-            ValueError: từ khóa hoặc tiêu chí tìm kiếm không hợp lệ.
-        """
-
-        if not isinstance(keyword, str) or not keyword.strip():
-            raise ValueError("Từ khóa tìm kiếm không hợp lệ.")
-
-        # Kiểm tra tiêu chí TRƯỚC khi duyệt hồ sơ để tiêu chí sai luôn bị
-        # báo lỗi, kể cả khi danh sách hồ sơ đang trống.
-        if search_type not in (
-            "record_id",
-            "patient_id",
-            "patient_name",
-            "doctor_id",
-            "doctor_name"
-        ):
-            raise ValueError("Tiêu chí tìm kiếm không hợp lệ.")
-
-        # casefold để so sánh không phân biệt hoa thường
-        keyword = keyword.strip().casefold()
-
-        results = []
-
-        for record in self.medical_records:
-
-            if search_type == "record_id":
-                matched = record.record_id.casefold() == keyword
-
-            elif search_type == "patient_id":
-                matched = record.patient_id.casefold() == keyword
-
-            elif search_type == "doctor_id":
-                matched = record.doctor_id.casefold() == keyword
-
-            # Tìm theo tên: tra bệnh nhân/bác sĩ của hồ sơ rồi so khớp gần đúng
-            elif search_type == "patient_name":
-                patient = next(
-                    (
-                        p for p in self.patients
-                        if p.patient_id == record.patient_id
-                    ),
-                    None
-                )
-
-                matched = (
-                    patient is not None
-                    and keyword in patient.full_name.casefold()
-                )
-
-            elif search_type == "doctor_name":
-                doctor = next(
-                    (
-                        d for d in self.doctors
-                        if d.doctor_id == record.doctor_id
-                    ),
-                    None
-                )
-
-                matched = (
-                    doctor is not None
-                    and keyword in doctor.full_name.casefold()
-                )
-
-            else:
-                raise ValueError("Tiêu chí tìm kiếm không hợp lệ.")
-
-            if matched:
-                results.append(record)
-
-        return results
-
-    # ---------------- SẮP XẾP HỒ SƠ ----------------
-
-    def sort_records(
-        self,
-        criterion: str,
-        descending: bool = False
-    ) -> list[MedicalRecord]:
-        """
-        Sắp xếp theo:
-        - visit_date: Ngày khám.
-        - fee_at_visit: Chi phí khám.
-
-        Raises:
-            ValueError: tiêu chí sắp xếp không hợp lệ.
-        """
-
-        # sorted() trả về list mới, không làm thay đổi danh sách gốc
-        if criterion == "visit_date":
-            return sorted(
-                self.medical_records,
-                key=lambda record: record.visit_date,
-                reverse=descending
-            )
-
-        elif criterion == "fee_at_visit":
-            return sorted(
-                self.medical_records,
-                # Key là tuple (phí có None không, giá trị phí): hồ sơ chưa có phí
-                # (None) bị đẩy xuống cuối, và tránh lỗi so sánh None với số.
-                key=lambda record: (
-                    record.fee_at_visit is None,
-                    record.fee_at_visit or 0
-                ),
-                reverse=descending
-            )
-
-        raise ValueError("Tiêu chí sắp xếp không hợp lệ.")
-
-    # ---------------- HIỂN THỊ HỒ SƠ ----------------
-
-    def display_medical_records(self) -> None:
-        """Hiển thị danh sách hồ sơ khám theo dạng bảng."""
-
-        if not self.medical_records:
-            print("Danh sách hồ sơ khám hiện đang trống.")
+        if data is None:
             return
 
-        headers = [
-            "Mã hồ sơ",
-            "Mã bệnh nhân",
-            "Mã bác sĩ",
-            "Ngày khám",
-            "Chẩn đoán",
-            "Chi phí"
-        ]
+        records_data = data.get("medical_records", [])
 
-        rows = []
+        if not isinstance(records_data, list):
+            print("Dữ liệu medical_records phải là một danh sách.")
+            return
 
-        for record in self.medical_records:
-            rows.append([
+        loaded_records = []
+
+        for item in records_data:
+            try:
+                if not isinstance(item, dict):
+                    raise TypeError("Dữ liệu hồ sơ không hợp lệ.")
+
+                # Chuyển chuỗi ngày thành đối tượng date
+                visit_date = date.fromisoformat(item["visit_date"])
+
+                # Tạo đối tượng MedicalRecord
+                record = MedicalRecord(
+                    item["record_id"],
+                    item["patient_id"],
+                    item["doctor_id"],
+                    visit_date,
+                    item["diagnosis"],
+                    item.get("fee_at_visit")
+                )
+
+                # Kiểm tra thông tin hồ sơ
+                if not record.validate():
+                    print(f"Bỏ qua hồ sơ không hợp lệ: {item.get('record_id')}")
+                    continue
+
+                # Kiểm tra mã hồ sơ trùng
+                if any(old.record_id == record.record_id for old in loaded_records):
+                    print(f"Bỏ qua hồ sơ trùng mã: {record.record_id}")
+                    continue
+
+                loaded_records.append(record)
+
+            except (KeyError, TypeError, ValueError, AttributeError) as error:
+                print(f"Lỗi đọc một hồ sơ: {error}")
+
+        self.medical_records = loaded_records
+
+        print(f"Đã tải {len(self.medical_records)} hồ sơ khám bệnh.")
+
+    # ==================================================
+    # 1. CREATE MEDICAL RECORD
+    # ==================================================
+
+    """Thêm hồ sơ khám bệnh mới."""
+    def create_medical_record(self, record: MedicalRecord) -> None:
+
+        try:
+            # Kiểm tra kiểu dữ liệu
+            if not isinstance(record, MedicalRecord):
+                raise TypeError("Dữ liệu phải là đối tượng MedicalRecord.")
+
+            # Kiểm tra thông tin hồ sơ
+            if not record.validate():
+                raise ValueError("Thông tin hồ sơ không hợp lệ.")
+
+            # Kiểm tra mã hồ sơ đã tồn tại chưa
+            for item in self.medical_records:
+                if item.record_id == record.record_id:
+                    raise ValueError(f"Mã hồ sơ {record.record_id} đã tồn tại.")
+
+            # Kiểm tra bệnh nhân và bác sĩ
+            if not self.validate_relations(record):
+                raise ValueError("Bệnh nhân hoặc bác sĩ không tồn tại.")
+
+            # Thêm hồ sơ vào danh sách
+            self.medical_records.append(record)
+
+            # Lưu vào JSON
+            if not self._save_medical_records():
+                self.medical_records.remove(record)
+                print("Không thể lưu hồ sơ vào JSON.")
+                return
+
+            print("Thêm hồ sơ khám bệnh thành công.")
+
+        except (TypeError, ValueError, AttributeError) as error:
+            print(f"Lỗi thêm hồ sơ: {error}")
+
+    # ==================================================
+    # 2. UPDATE MEDICAL RECORD
+    # ==================================================
+
+    """Cập nhật thông tin hồ sơ khám bệnh."""
+    def update_medical_record(self, record_id: str, changes: dict) -> bool:
+
+        try:
+            if not isinstance(changes, dict):
+                raise TypeError("changes phải là dictionary.")
+
+            # Tìm hồ sơ cần cập nhật
+            record = next((item for item in self.medical_records if item.record_id == record_id), None)
+
+            if record is None:
+                print("Không tìm thấy hồ sơ cần cập nhật.")
+                return False
+
+            # Những trường được phép cập nhật
+            allowed_fields = {"doctor_id", "visit_date", "diagnosis", "fee_at_visit"}
+
+            # Kiểm tra các trường cập nhật
+            for field in changes:
+                if field not in allowed_fields:
+                    raise ValueError(f"Không thể cập nhật trường: {field}")
+
+            if not changes:
+                print("Không có thông tin cần cập nhật.")
+                return False
+
+            # Lấy thông tin hiện tại
+            new_doctor_id = record.doctor_id
+            new_visit_date = record.visit_date
+            new_diagnosis = record.diagnosis
+            new_fee = record.fee_at_visit
+
+            # Cập nhật thông tin mới
+            if "doctor_id" in changes:
+                new_doctor_id = changes["doctor_id"]
+
+            if "visit_date" in changes:
+                new_visit_date = changes["visit_date"]
+
+                # Nếu ngày khám là chuỗi thì chuyển thành date
+                if isinstance(new_visit_date, str):
+                    new_visit_date = date.fromisoformat(new_visit_date)
+
+            if "diagnosis" in changes:
+                new_diagnosis = changes["diagnosis"]
+
+            if "fee_at_visit" in changes:
+                new_fee = changes["fee_at_visit"]
+
+            # Tạo đối tượng tạm để kiểm tra dữ liệu mới
+            updated_record = MedicalRecord(
                 record.record_id,
                 record.patient_id,
-                record.doctor_id,
-                record.visit_date.strftime("%d/%m/%Y"),
-                record.diagnosis,
-                (
-                    f"{record.fee_at_visit:,.0f}"
-                    if record.fee_at_visit is not None
-                    else "Chưa có"
-                )
-            ])
-
-        # Độ rộng mỗi cột = độ dài lớn nhất trong cột (tính cả tiêu đề)
-        widths = [
-            max(len(str(row[i])) for row in [headers] + rows)
-            for i in range(len(headers))
-        ]
-
-        separator = "+-" + "-+-".join(
-            "-" * width for width in widths
-        ) + "-+"
-
-        def print_row(row):
-            print(
-                "| "
-                + " | ".join(
-                    str(value).ljust(widths[i])
-                    for i, value in enumerate(row)
-                )
-                + " |"
+                new_doctor_id,
+                new_visit_date,
+                new_diagnosis,
+                new_fee
             )
 
-        print("\nDANH SÁCH HỒ SƠ KHÁM")
-        print(separator)
-        print_row(headers)
-        print(separator)
+            if not updated_record.validate():
+                raise ValueError("Thông tin cập nhật không hợp lệ.")
 
-        for row in rows:
-            print_row(row)
+            # Kiểm tra quan hệ bệnh nhân và bác sĩ
+            if not self.validate_relations(updated_record):
+                raise ValueError("Bệnh nhân hoặc bác sĩ không tồn tại.")
 
-        print(separator)
-        print(f"Tổng số hồ sơ: {len(self.medical_records)}")
+            # Lưu dữ liệu cũ để khôi phục nếu lưu thất bại
+            old_values = (record.doctor_id, record.visit_date, record.diagnosis, record.fee_at_visit)
 
-    # ---------------- ĐỌC / GHI JSON ----------------
+            # Cập nhật object
+            record.doctor_id = new_doctor_id
+            record.visit_date = new_visit_date
+            record.diagnosis = new_diagnosis
+            record.fee_at_visit = new_fee
 
-    @staticmethod
-    def _record_to_dict(record: MedicalRecord) -> dict:
-        """Chuyển MedicalRecord thành dict (ngày khám lưu dạng YYYY-MM-DD)."""
+            # Lưu vào JSON
+            if not self._save_medical_records():
 
-        return {
-            "record_id": record.record_id,
-            "patient_id": record.patient_id,
-            "doctor_id": record.doctor_id,
-            # JSON không có kiểu ngày nên lưu dạng chuỗi ISO, ví dụ "2026-11-10"
-            "visit_date": record.visit_date.isoformat(),
-            "diagnosis": record.diagnosis,
-            "fee_at_visit": record.fee_at_visit
-        }
+                # Khôi phục dữ liệu cũ
+                record.doctor_id = old_values[0]
+                record.visit_date = old_values[1]
+                record.diagnosis = old_values[2]
+                record.fee_at_visit = old_values[3]
 
-    @staticmethod
-    def _record_from_dict(row: dict) -> MedicalRecord:
-        """Tạo MedicalRecord từ dict. Ném lỗi nếu thiếu trường hoặc sai định dạng."""
+                return False
 
-        return MedicalRecord(
-            row["record_id"],
-            row["patient_id"],
-            row["doctor_id"],
-            date.fromisoformat(row["visit_date"]),
-            row["diagnosis"],
-            row.get("fee_at_visit")
-        )
+            print("Cập nhật hồ sơ thành công.")
+            return True
 
-    def load_from_json(self, path) -> None:
-        """
-        Nạp hồ sơ khám từ file JSON (key "medical_records").
+        except (TypeError, ValueError, AttributeError) as error:
+            print(f"Lỗi cập nhật hồ sơ: {error}")
+            return False
 
-        Từng hồ sơ đều được kiểm tra hợp lệ, trùng mã và liên kết
-        bệnh nhân/bác sĩ. Hồ sơ lỗi bị bỏ qua và có thông báo số lượng.
-        Danh sách hiện tại chỉ bị thay thế khi đọc file thành công.
+    # ==================================================
+    # 3. ASSIGN DOCTOR
+    # ==================================================
 
-        Raises:
-            ValueError: không đọc được file, sai cú pháp JSON hoặc
-                thiếu danh sách medical_records.
-        """
-
-        # utf-8-sig để đọc được cả file JSON có BOM
-        try:
-            with open(path, "r", encoding="utf-8-sig") as file:
-                data = json.load(file)
-        except (OSError, json.JSONDecodeError) as error:
-            raise ValueError("Không đọc được file dữ liệu.") from error
-
-        rows = data.get("medical_records") if isinstance(data, dict) else None
-        if not isinstance(rows, list):
-            raise ValueError("File dữ liệu thiếu danh sách medical_records.")
-
-        # Nạp vào danh sách tạm, chỉ gán vào self.medical_records khi xử lý xong
-        loaded = []
-        seen_ids = set()
-        skipped = 0
-
-        for row in rows:
-            try:
-                record = self._record_from_dict(row)
-            except (ValueError, TypeError, KeyError, AttributeError):
-                skipped += 1
-                continue
-
-            if record.record_id in seen_ids or not self.validate_relations(record):
-                skipped += 1
-                continue
-
-            seen_ids.add(record.record_id)
-            loaded.append(record)
-
-        self.medical_records = loaded
-        print(f"Đã nạp {len(loaded)} hồ sơ khám.")
-        if skipped:
-            print(f"Bỏ qua {skipped} hồ sơ không hợp lệ.")
-
-    def save_to_json(self, path) -> None:
-        """
-        Lưu hồ sơ khám vào file JSON (key "medical_records").
-
-        Nếu file đã có và là object JSON thì giữ nguyên các key khác
-        trong file, chỉ thay phần "medical_records".
-
-        Raises:
-            ValueError: không chuyển được dữ liệu sang JSON hoặc không ghi được file.
-        """
-
-        # Đọc nội dung cũ (nếu có) để không làm mất các key khác trong file
-        data = {}
-        try:
-            with open(path, "r", encoding="utf-8-sig") as file:
-                existing = json.load(file)
-            if isinstance(existing, dict):
-                data = existing
-        except (OSError, json.JSONDecodeError):
-            pass
-
-        data["medical_records"] = [
-            self._record_to_dict(record) for record in self.medical_records
-        ]
-
-        # Tạo chuỗi JSON trước khi mở file ghi, để lỗi chuyển đổi không làm hỏng file cũ
-        try:
-            content = json.dumps(data, ensure_ascii=False, indent=2)
-        except (TypeError, ValueError) as error:
-            raise ValueError("Dữ liệu hồ sơ không thể chuyển sang JSON.") from error
+    """Phân công bác sĩ cho hồ sơ khám bệnh."""
+    def assign_doctor(self, record_id: str, doctor_id: str) -> bool:
 
         try:
-            with open(path, "w", encoding="utf-8") as file:
-                file.write(content + "\n")
-        except OSError as error:
-            raise ValueError("Không ghi được file dữ liệu.") from error
+            # Tìm hồ sơ
+            record = next((item for item in self.medical_records if item.record_id == record_id), None)
 
-        print("Lưu hồ sơ khám thành công.")
+            if record is None:
+                print("Không tìm thấy hồ sơ.")
+                return False
+
+            # Kiểm tra bác sĩ
+            doctor_exists = any(doctor.doctor_id == doctor_id for doctor in self.doctors)
+
+            if not doctor_exists:
+                print("Không tìm thấy bác sĩ.")
+                return False
+
+            # Lưu mã bác sĩ cũ
+            old_doctor_id = record.doctor_id
+
+            # Gán bác sĩ mới
+            record.doctor_id = doctor_id
+
+            # Lưu thay đổi vào JSON
+            if not self._save_medical_records():
+                record.doctor_id = old_doctor_id
+                return False
+
+            print("Phân công bác sĩ thành công.")
+            return True
+
+        except (TypeError, ValueError, AttributeError) as error:
+            print(f"Lỗi phân công bác sĩ: {error}")
+            return False
+
+    # ==================================================
+    # 4. FIND MEDICAL RECORDS
+    # ==================================================
+
+    """Tìm kiếm hồ sơ khám bệnh."""
+    def find_medical_records(self, keyword: str, search_type: str) -> list[MedicalRecord]:
+
+        try:
+            if not isinstance(keyword, str):
+                raise TypeError("keyword phải là chuỗi.")
+
+            if not isinstance(search_type, str):
+                raise TypeError("search_type phải là chuỗi.")
+
+            keyword = keyword.strip().casefold()
+            search_type = search_type.strip().casefold()
+
+            if not keyword:
+                print("Từ khóa tìm kiếm không được để trống.")
+                return []
+
+            # Các kiểu tìm kiếm được hỗ trợ
+            allowed_types = {"record_id", "patient_id", "patient_name", "doctor_id", "doctor_name"}
+
+            if search_type not in allowed_types:
+                raise ValueError("Loại tìm kiếm không hợp lệ.")
+
+            results = []
+
+            # Duyệt từng hồ sơ
+            for record in self.medical_records:
+                value = ""
+
+                if search_type == "record_id":
+                    value = record.record_id
+
+                elif search_type == "patient_id":
+                    value = record.patient_id
+
+                elif search_type == "doctor_id":
+                    value = record.doctor_id
+
+                elif search_type == "patient_name":
+
+                    # Tìm bệnh nhân theo mã bệnh nhân
+                    patient = next((item for item in self.patients if item.patient_id == record.patient_id), None)
+
+                    if patient is not None:
+                        value = patient.full_name
+
+                elif search_type == "doctor_name":
+
+                    # Tìm bác sĩ theo mã bác sĩ
+                    doctor = next((item for item in self.doctors if item.doctor_id == record.doctor_id), None)
+
+                    if doctor is not None:
+                        value = doctor.full_name
+
+                # So sánh từ khóa không phân biệt chữ hoa, chữ thường
+                if keyword in str(value).casefold():
+                    results.append(record)
+
+            print(f"Tìm thấy {len(results)} hồ sơ.")
+
+            return results
+
+        except (TypeError, ValueError, AttributeError) as error:
+            print(f"Lỗi tìm kiếm: {error}")
+            return []
+
+    # ==================================================
+    # 5. SORT MEDICAL RECORDS
+    # ==================================================
+
+    """Sắp xếp hồ sơ theo ngày khám hoặc chi phí."""
+    def sort_medical_records(self, criteria: str, descending: bool) -> list[MedicalRecord]:
+
+        try:
+            if not isinstance(criteria, str):
+                raise TypeError("criteria phải là chuỗi.")
+
+            if not isinstance(descending, bool):
+                raise TypeError("descending phải là True hoặc False.")
+
+            criteria = criteria.strip().casefold()
+
+            # Kiểm tra tiêu chí sắp xếp
+            if criteria not in {"visit_date", "fee_at_visit"}:
+                raise ValueError("Tiêu chí sắp xếp không hợp lệ.")
+
+            # Sao chép danh sách để không thay đổi danh sách gốc
+            records = self.medical_records.copy()
+
+            if criteria == "visit_date":
+
+                # Sắp xếp theo ngày khám
+                records.sort(key=lambda item: item.visit_date, reverse=descending)
+
+            elif criteria == "fee_at_visit":
+
+                # Những hồ sơ có chi phí
+                records_with_fee = [item for item in records if item.fee_at_visit is not None]
+
+                # Những hồ sơ chưa có chi phí
+                records_without_fee = [item for item in records if item.fee_at_visit is None]
+
+                # Sắp xếp theo chi phí
+                records_with_fee.sort(key=lambda item: item.fee_at_visit, reverse=descending)
+
+                # Hồ sơ chưa có chi phí luôn nằm cuối
+                records = records_with_fee + records_without_fee
+
+            return records
+
+        except (TypeError, ValueError, AttributeError) as error:
+            print(f"Lỗi sắp xếp: {error}")
+            return []
+
+    # ==================================================
+    # 6. DISPLAY MEDICAL RECORDS
+    # ==================================================
+
+    """Hiển thị danh sách hồ sơ khám bệnh."""
+    def display_medical_records(self) -> None:
+
+        try:
+            if not self.medical_records:
+                print("Chưa có hồ sơ khám bệnh.")
+                return
+
+            print("\n" + "=" * 115)
+            print("DANH SÁCH HỒ SƠ KHÁM BỆNH".center(115))
+            print("=" * 115)
+
+            print(
+                f"{'Mã hồ sơ':<12}"
+                f"{'Mã bệnh nhân':<16}"
+                f"{'Mã bác sĩ':<14}"
+                f"{'Ngày khám':<16}"
+                f"{'Chẩn đoán':<37}"
+                f"{'Chi phí':>15}"
+            )
+
+            print("-" * 115)
+
+            # Hiển thị từng hồ sơ
+            for record in self.medical_records:
+
+                if record.fee_at_visit is not None:
+                    fee = f"{record.fee_at_visit:,.0f}"
+                else:
+                    fee = "Chưa có"
+
+                print(
+                    f"{record.record_id:<12}"
+                    f"{record.patient_id:<16}"
+                    f"{record.doctor_id:<14}"
+                    f"{record.visit_date.isoformat():<16}"
+                    f"{record.diagnosis:<37}"
+                    f"{fee:>15}"
+                )
+
+            print("=" * 115)
+
+            print(f"Tổng số hồ sơ: {len(self.medical_records)}")
+
+        except (TypeError, ValueError, AttributeError) as error:
+            print(f"Lỗi hiển thị hồ sơ: {error}")
+
+    # ==================================================
+    # 7. VALIDATE RELATIONS
+    # ==================================================
+
+    """Kiểm tra bệnh nhân và bác sĩ có tồn tại không."""
+    def validate_relations(self, record: MedicalRecord) -> bool:
+
+        try:
+            if not isinstance(record, MedicalRecord):
+                return False
+
+            # Kiểm tra bệnh nhân
+            patient_exists = any(patient.patient_id == record.patient_id for patient in self.patients)
+
+            # Kiểm tra bác sĩ
+            doctor_exists = any(doctor.doctor_id == record.doctor_id for doctor in self.doctors)
+
+            if not patient_exists:
+                print(f"Không tồn tại bệnh nhân: {record.patient_id}")
+
+            if not doctor_exists:
+                print(f"Không tồn tại bác sĩ: {record.doctor_id}")
+
+            return patient_exists and doctor_exists
+
+        except (TypeError, ValueError, AttributeError) as error:
+            print(f"Lỗi kiểm tra quan hệ: {error}")
+            return False
