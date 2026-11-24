@@ -249,11 +249,15 @@ def _add_record(manager):
 
 def _update_record(manager):
     record_id = input("Mã hồ sơ: ").strip()
-    changes = json.loads(input('Trường sửa, ví dụ {"diagnosis":"Chẩn đoán mới"}: '))
-    if "visit_date" in changes:
-        changes["visit_date"] = date.fromisoformat(changes["visit_date"])
-    if "fee_at_visit" in changes and changes["fee_at_visit"] is not None:
-        changes["fee_at_visit"] = float(changes["fee_at_visit"])
+    field = input("Trường cần sửa (doctor_id/visit_date/diagnosis/fee_at_visit): ").strip()
+    new_value = input("Giá trị mới: ").strip()
+
+    if field == "visit_date":
+        new_value = date.fromisoformat(new_value)
+    elif field == "fee_at_visit":
+        new_value = float(new_value)
+
+    changes = {field: new_value}
     manager.update_medical_record(record_id, changes)
 
 
