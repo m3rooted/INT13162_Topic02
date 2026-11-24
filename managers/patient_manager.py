@@ -112,6 +112,9 @@ class PatientManager:
 
     def find_patients(self, keyword, search_type="all"):
         """Tìm bệnh nhân theo 'id', 'name' hoặc 'all'; trả về danh sách kết quả."""
+        if not isinstance(search_type, str) or search_type not in {"id", "name", "all"}:
+            raise ValueError("Kiểu tìm kiếm không hợp lệ (chỉ nhận 'id', 'name' hoặc 'all').")
+
         clean_keyword = str(keyword).strip().lower()
         if not clean_keyword:
             raise ValueError("Từ khóa tìm kiếm không được để trống.")
@@ -127,9 +130,6 @@ class PatientManager:
                 results.append(patient)
             elif search_type == "all" and (matched_id or matched_name):
                 results.append(patient)
-            elif search_type not in {"id", "name", "all"}:
-                raise ValueError("Kiểu tìm kiếm không hợp lệ (chỉ nhận 'id', 'name' hoặc 'all').")
-
         return results
 
     def sort_patients(self, criterion="name", descending=False):

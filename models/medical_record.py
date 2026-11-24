@@ -5,6 +5,8 @@
 from datetime import date
 from typing import Optional
 
+from utils.validators import is_non_negative_finite_number
+
 
 class MedicalRecord:
 
@@ -109,11 +111,7 @@ class MedicalRecord:
 
         if value is not None:
 
-            if (
-                not isinstance(value, (int, float))
-                or isinstance(value, bool)
-                or value < 0
-            ):
+            if not is_non_negative_finite_number(value):
                 raise ValueError("Chi phi kham phai la so khong am!")
 
             value = float(value)
@@ -145,9 +143,7 @@ class MedicalRecord:
             and (
                 self._fee_at_visit is None
                 or (
-                    isinstance(self._fee_at_visit, (int, float))
-                    and not isinstance(self._fee_at_visit, bool)
-                    and self._fee_at_visit >= 0
+                    is_non_negative_finite_number(self._fee_at_visit)
                 )
             )
         )

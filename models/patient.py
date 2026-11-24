@@ -6,6 +6,8 @@ from datetime import date
 from abc import ABC, abstractmethod
 import re
 
+from utils.validators import is_non_negative_finite_number
+
 
 # ==========================================
 # 1. CLASS PATIENT - LOP BENH NHAN CO SO
@@ -183,11 +185,7 @@ class Inpatient(Patient):
     @daily_fee.setter
     def daily_fee(self, value: float):
 
-        if (
-            not isinstance(value, (int, float))
-            or isinstance(value, bool)
-            or value < 0
-        ):
+        if not is_non_negative_finite_number(value):
             raise ValueError("Chi phi moi ngay phai la so khong am!")
 
         self._daily_fee = float(value)
@@ -224,9 +222,7 @@ class Inpatient(Patient):
             and type(self._admission_date) is date
             and self._admission_date <= date.today()
 
-            and isinstance(self._daily_fee, (int, float))
-            and not isinstance(self._daily_fee, bool)
-            and self._daily_fee >= 0
+            and is_non_negative_finite_number(self._daily_fee)
 
             and isinstance(self._days_stayed, int)
             and not isinstance(self._days_stayed, bool)
@@ -286,11 +282,7 @@ class Outpatient(Patient):
     @consultation_fee.setter
     def consultation_fee(self, value: float):
 
-        if (
-            not isinstance(value, (int, float))
-            or isinstance(value, bool)
-            or value < 0
-        ):
+        if not is_non_negative_finite_number(value):
             raise ValueError("Phi kham phai la so khong am!")
 
         self._consultation_fee = float(value)
@@ -304,9 +296,7 @@ class Outpatient(Patient):
         return (
             super().validate()
 
-            and isinstance(self._consultation_fee, (int, float))
-            and not isinstance(self._consultation_fee, bool)
-            and self._consultation_fee >= 0
+            and is_non_negative_finite_number(self._consultation_fee)
         )
 
     # ==========================================

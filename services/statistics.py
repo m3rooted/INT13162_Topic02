@@ -4,6 +4,8 @@ Ngày : 19/11/2026
 Nhiệm vụ: thống kê, tính viện phí nội trú/ngoại trú và tổng hợp báo cáo.
 '''
 
+from utils.validators import is_non_negative_finite_number
+
 # Tên loại bệnh nhân, dùng làm khóa trong các dict kết quả
 INPATIENT = "inpatient"      # Nội trú
 OUTPATIENT = "outpatient"    # Ngoại trú
@@ -48,7 +50,12 @@ def get_patient_type(patient):
 def calculate_inpatient_fee(daily_fee, days_stayed):
     # Viện phí nội trú = phí mỗi ngày x số ngày nằm viện
     # Dữ liệu đầu vào không được âm
-    if daily_fee < 0 or days_stayed < 0:
+    if (
+        not is_non_negative_finite_number(daily_fee)
+        or not isinstance(days_stayed, int)
+        or isinstance(days_stayed, bool)
+        or days_stayed < 0
+    ):
         raise ValueError("Phí mỗi ngày và số ngày nằm viện không được âm.")
 
     # Nhân phí ngày với số ngày, ép về số thực
@@ -58,7 +65,7 @@ def calculate_inpatient_fee(daily_fee, days_stayed):
 def calculate_outpatient_fee(consultation_fee):
     # Viện phí ngoại trú = phí khám một lần
     # Phí khám âm là dữ liệu sai
-    if consultation_fee < 0:
+    if not is_non_negative_finite_number(consultation_fee):
         raise ValueError("Phí khám không được âm.")
 
     return float(consultation_fee)

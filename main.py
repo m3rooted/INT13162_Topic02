@@ -37,8 +37,7 @@ def _load_managers():
                 row["daily_fee"],
                 row["days_stayed"],
             )
-            # Dữ liệu mẫu có ngày tương lai; giữ nguyên ngày gốc khi nạp.
-            patient._admission_date = admission
+            # Giới hạn ngày mẫu ở hôm nay để giữ đúng validation của model.
         else:
             patient = Outpatient(*common, row["consultation_fee"])
         patients.append(patient)
