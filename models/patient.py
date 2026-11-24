@@ -25,7 +25,8 @@ class Patient(ABC):
         self.birth_year = birth_year
         self.phone = phone
 
-        if not self.validate():
+        # Validate only base fields here; subclass fields are initialized later.
+        if not Patient.validate(self):
             raise ValueError("Thong tin benh nhan khong hop le!")
 
     # ==========================================

@@ -5,7 +5,7 @@ from datetime import date
 from pathlib import Path
 
 from managers.doctor_manager import DoctorManager
-from managers.medical_record_manager import PatientManager as RecordManager
+from managers.medical_record_manager import MedicalRecordManager as RecordManager
 from managers.patient_manager import PatientManager
 from models.doctor import Doctor
 from models.medical_record import MedicalRecord
