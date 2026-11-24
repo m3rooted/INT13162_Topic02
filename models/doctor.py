@@ -27,7 +27,7 @@ class Doctor:
         return self._doctor_id
 
     # ==========================================
-    # HO TEN BAC SI
+    # HO VA TEN BAC SI
     # ==========================================
 
     @property
@@ -38,7 +38,7 @@ class Doctor:
     def full_name(self, value: str):
 
         if not isinstance(value, str) or not value.strip():
-            raise ValueError("Ho ten bac si khong duoc de trong!")
+            raise ValueError("Họ và tên bác sĩ không được để trống!")
 
         self._full_name = value.strip()
 
@@ -83,7 +83,7 @@ class Doctor:
 
         return (
             f"Ma bac si: {self.doctor_id}\n"
-            f"Ho ten: {self.full_name}\n"
+            f"Họ và tên: {self.full_name}\n"
             f"Chuyen khoa: {self.specialty}"
         )
 

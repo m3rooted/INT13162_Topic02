@@ -40,7 +40,7 @@ class Patient(ABC):
         return self._patient_id
 
     # ==========================================
-    # HO TEN BENH NHAN
+    # HO VA TEN BENH NHAN
     # ==========================================
 
     @property
@@ -51,7 +51,7 @@ class Patient(ABC):
     def full_name(self, value: str):
 
         if not isinstance(value, str) or not value.strip():
-            raise ValueError("Ho ten khong duoc de trong!")
+            raise ValueError("Họ và tên không được để trống!")
 
         self._full_name = value.strip()
 
@@ -119,7 +119,7 @@ class Patient(ABC):
 
         return (
             f"Ma benh nhan: {self.patient_id}\n"
-            f"Ho ten: {self.full_name}\n"
+            f"Họ và tên: {self.full_name}\n"
             f"Nam sinh: {self.birth_year}\n"
             f"So dien thoai: {self.phone}"
         )

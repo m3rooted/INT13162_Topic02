@@ -93,22 +93,59 @@ class PatientManager:
         self.patients.remove(patient)
         return True
 
-    def display_patients(self):
+    def display_patients(self, patients=None):
         """Hiển thị danh sách bệnh nhân ra console."""
-        if not self.patients:
+        rows = self.patients if patients is None else patients
+        if not rows:
             print("\nChưa có dữ liệu bệnh nhân.")
-            return
+            return False
 
         print("\n=== DANH SÁCH BỆNH NHÂN ===")
-        for patient in self.patients:
+        headers = (
+            "STT",
+            "Mã BN",
+            "Họ và tên",
+            "Năm sinh",
+            "Số điện thoại",
+            "Loại bệnh nhân",
+            "Tổng phí (đồng)",
+        )
+        data = []
+        for index, patient in enumerate(rows, 1):
             patient_type = "Nội trú" if isinstance(patient, Inpatient) else "Ngoại trú"
-            fee = patient.calculate_fee()
-            print(
-                f"{patient.patient_id} | {patient.full_name} | "
-                f"{patient.birth_year} | {patient.phone} | "
-                f"{patient_type} | Phí: {fee:,.0f} đồng"
+            data.append(
+                (
+                    str(index),
+                    patient.patient_id,
+                    patient.full_name,
+                    str(patient.birth_year),
+                    patient.phone,
+                    patient_type,
+                    f"{patient.calculate_fee():,.0f}",
+                )
             )
-        print(f"Tổng số: {len(self.patients)} bệnh nhân")
+
+        widths = [
+            max(len(header), *(len(row[column]) for row in data))
+            for column, header in enumerate(headers)
+        ]
+        border = "+" + "+".join("-" * (width + 2) for width in widths) + "+"
+
+        def format_row(cells):
+            formatted = [
+                cell.rjust(width) if column in (0, 3, 6) else cell.ljust(width)
+                for column, (cell, width) in enumerate(zip(cells, widths))
+            ]
+            return "| " + " | ".join(formatted) + " |"
+
+        print(border)
+        print(format_row(headers))
+        print(border)
+        for row in data:
+            print(format_row(row))
+        print(border)
+        print(f"Tổng số: {len(rows)} bệnh nhân")
+        return True
 
     def find_patients(self, keyword, search_type="all"):
         """Tìm bệnh nhân theo 'id', 'name' hoặc 'all'; trả về danh sách kết quả."""
