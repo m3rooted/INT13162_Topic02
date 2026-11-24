@@ -24,10 +24,14 @@ class DoctorManager:
     Quản lý danh sách bác sĩ.
     Chỉ xử lý dữ liệu, không input()/print(); việc hỏi xác nhận và in thông báo
     do menu trong main.py đảm nhiệm. Lỗi nghiệp vụ báo bằng ValueError/KeyError.
+    Mọi thay đổi (thêm/sửa/xóa) được tự động lưu vào data/doctors.json.
     """
 
     # Chỉ cho sửa họ tên và chuyên khoa; mã bác sĩ đã gắn với hồ sơ khám nên cố định
     EDITABLE_FIELDS = ("full_name", "specialty")
+
+    # Đường dẫn file dữ liệu, dùng chung cho cả đọc và ghi
+    DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "doctors.json"
 
     def __init__(self, record_checker: Optional[Callable[[str], bool]] = None):
         """
@@ -41,9 +45,11 @@ class DoctorManager:
         self._record_checker = record_checker
         self._load_initial_doctors()
 
+    # ---------------- ĐỌC / GHI FILE ----------------
+
     def _load_initial_doctors(self) -> None:
         """Nạp bác sĩ ban đầu từ data/doctors.json, mỗi dict thành một Doctor."""
-        data_path = Path(__file__).resolve().parent.parent / "data" / "doctors.json"
+        data_path = self.DATA_PATH
 
         try:
             doctors_data = json.loads(data_path.read_text(encoding="utf-8-sig"))
@@ -59,7 +65,8 @@ class DoctorManager:
             if not isinstance(doctor_data, dict):
                 raise ValueError(f"Bản ghi bác sĩ thứ {index} phải có dạng dict.")
             try:
-                self.add_doctor(Doctor(
+                # Dùng _add (không ghi file) để tránh ghi lại file khi đang nạp
+                self._add(Doctor(
                     doctor_id=doctor_data["doctor_id"],
                     full_name=doctor_data["full_name"],
                     specialty=doctor_data["specialty"],
@@ -72,6 +79,27 @@ class DoctorManager:
                 raise ValueError(
                     f"Bản ghi bác sĩ thứ {index} không hợp lệ: {error}"
                 ) from error
+
+    def save(self) -> None:
+        """
+        Ghi toàn bộ danh sách bác sĩ hiện tại ra data/doctors.json.
+        Ghi vào file tạm rồi thay thế file thật để không làm hỏng dữ liệu nếu lỗi giữa chừng.
+        """
+        data = [
+            {
+                "doctor_id": d.doctor_id,
+                "full_name": d.full_name,
+                "specialty": d.specialty,
+            }
+            for d in self.get_all()
+        ]
+        tmp_path = self.DATA_PATH.with_suffix(".json.tmp")
+        # ensure_ascii=False để giữ nguyên tiếng Việt, không bị ghi thành \uXXXX
+        tmp_path.write_text(
+            json.dumps(data, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        tmp_path.replace(self.DATA_PATH)
 
     # ---------------- TÍCH HỢP VỚI MODULE KHÁC ----------------
 
@@ -90,8 +118,8 @@ class DoctorManager:
 
     # ---------------- THÊM BÁC SĨ ----------------
 
-    def add_doctor(self, doctor: Doctor) -> None:
-        """Thêm bác sĩ mới; từ chối dữ liệu không hợp lệ hoặc trùng mã."""
+    def _add(self, doctor: Doctor) -> None:
+        """Kiểm tra và thêm vào dict trong bộ nhớ, KHÔNG ghi file."""
         if not isinstance(doctor, Doctor):
             raise ValueError("Đối tượng thêm vào phải là Doctor.")
         if not doctor.validate():
@@ -103,6 +131,11 @@ class DoctorManager:
 
         self._doctors[key] = doctor
 
+    def add_doctor(self, doctor: Doctor) -> None:
+        """Thêm bác sĩ mới (từ chối dữ liệu không hợp lệ hoặc trùng mã) và lưu file."""
+        self._add(doctor)
+        self.save()
+
     # ---------------- SỬA THÔNG TIN BÁC SĨ ----------------
 
     def update_doctor(
@@ -112,7 +145,7 @@ class DoctorManager:
         **kwargs: str,
     ) -> bool:
         """
-        Sửa họ tên và/hoặc chuyên khoa theo mã.
+        Sửa họ tên và/hoặc chuyên khoa theo mã, rồi lưu file.
         Nhận dict changes theo UML; cũng hỗ trợ truyền các trường bằng keyword.
         """
         doctor = self._require(doctor_id)
@@ -144,6 +177,7 @@ class DoctorManager:
         doctor.full_name = updated_doctor.full_name
         doctor.specialty = updated_doctor.specialty
 
+        self.save()
         return True
 
     # ---------------- XÓA BÁC SĨ ----------------
@@ -152,7 +186,7 @@ class DoctorManager:
         self, doctor_id: str, medical_records=None
     ) -> bool:
         """
-        Xóa bác sĩ nếu không còn hồ sơ khám tham chiếu.
+        Xóa bác sĩ nếu không còn hồ sơ khám tham chiếu, rồi lưu file.
         Có thể truyền medical_records hoặc gắn record_checker để kiểm tra liên kết.
         """
         doctor = self.find_by_id(doctor_id)
@@ -176,6 +210,7 @@ class DoctorManager:
             )
 
         del self._doctors[self._key(doctor_id)]
+        self.save()
         return True
 
     # ---------------- TÌM KIẾM BÁC SĨ ----------------
