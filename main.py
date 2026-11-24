@@ -127,15 +127,20 @@ def _add_patient(manager):
 
 def _update_patient(manager):
     patient_id = input("Mã BN: ").strip()
-    changes = json.loads(input('Trường sửa, ví dụ {"full_name":"Tên mới"}: '))
-    for key in ("birth_year", "days_stayed"):
-        if key in changes:
-            changes[key] = int(changes[key])
-    for key in ("daily_fee", "consultation_fee"):
-        if key in changes:
-            changes[key] = float(changes[key])
-    if "admission_date" in changes:
-        changes["admission_date"] = date.fromisoformat(changes["admission_date"])
+    field = input(
+        "Trường cần sửa (full_name/birth_year/phone/admission_date/"
+        "daily_fee/days_stayed/consultation_fee): "
+    ).strip()
+    new_value = input("Giá trị mới: ").strip()
+
+    if field in ("birth_year", "days_stayed"):
+        new_value = int(new_value)
+    elif field in ("daily_fee", "consultation_fee"):
+        new_value = float(new_value)
+    elif field == "admission_date":
+        new_value = date.fromisoformat(new_value)
+
+    changes = {field: new_value}
     manager.update_patient(patient_id, changes)
 
 
@@ -191,7 +196,9 @@ def _add_doctor(manager, records):
 
 def _update_doctor(manager):
     doctor_id = input("Mã BS: ").strip()
-    changes = json.loads(input('Trường sửa, ví dụ {"specialty":"Nhi khoa"}: '))
+    field = input("Trường cần sửa (full_name/specialty): ").strip()
+    new_value = input("Giá trị mới: ").strip()
+    changes = {field: new_value}
     manager.update_doctor(doctor_id, changes)
 
 
