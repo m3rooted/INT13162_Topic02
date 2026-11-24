@@ -12,7 +12,7 @@ OUTPATIENT = "outpatient"    # Ngoại trú
 
 
 # =====================================================================
-# 0. HÀM HỖ TRỢ: ĐỌC DỮ LIỆU TỪ DICT (JSON) HOẶC ĐỐI TƯỢNG
+# 0. KHAI BÁO CHUNG VÀ HÀM HỖ TRỢ
 # =====================================================================
 
 def _get(item, field, default=None):
@@ -209,10 +209,37 @@ def format_report(report):
         "Theo bác sĩ (lượt khám / số bệnh nhân):",
     ]
 
-    # Thêm mỗi bác sĩ một dòng: mã - số lượt khám / số bệnh nhân
+    # Chỉ liệt kê bác sĩ đã có lượt khám để báo cáo gọn, vừa một màn hình
+    idle_doctors = []
     for doctor_id, visits in report["visits_by_doctor"].items():
         patients = report["patients_by_doctor"][doctor_id]
-        lines.append(f"  {doctor_id}: {visits} / {patients}")
+        if visits == 0 and patients == 0:
+            idle_doctors.append(doctor_id)
+        else:
+            lines.append(f"  {doctor_id}: {visits} / {patients}")
+
+    # Bác sĩ chưa khám ai gộp thành một dòng thay vì in nhiều dòng "0 / 0"
+    if idle_doctors:
+        lines.append(f"  Chưa có lượt khám: {len(idle_doctors)} bác sĩ")
 
     # Nối các dòng bằng ký tự xuống dòng
     return "\n".join(lines)
+
+
+def show_report(report, hide_visit_fee=True):
+    # In báo cáo rồi DỪNG chờ người dùng, để menu không vẽ lại ngay
+    # và đẩy báo cáo trôi khỏi màn hình
+    text = format_report(report)
+
+    # Ẩn dòng tổng phí ghi nhận tại lượt khám nếu được yêu cầu
+    if hide_visit_fee:
+        text = "\n".join(
+            line
+            for line in text.splitlines()
+            if not line.startswith("Tổng phí ghi nhận tại các lượt khám:")
+        )
+
+    print()
+    print(text)
+    print()
+    input("Nhấn Enter để quay lại menu...")
