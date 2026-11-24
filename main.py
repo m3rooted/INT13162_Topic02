@@ -42,7 +42,7 @@ def _load_managers():
             patient = Outpatient(*common, row["consultation_fee"])
         patients.append(patient)
 
-    patient_manager = PatientManager(patients)
+    patient_manager = PatientManager(patients, DATA_DIR / "patients.json")
     doctor_manager = DoctorManager()
     record_manager = RecordManager(patient_manager.patients, doctor_manager.get_all())
     record_manager.medical_records = [

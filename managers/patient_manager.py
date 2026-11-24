@@ -1,14 +1,58 @@
 """Quản lý bệnh nhân theo sơ đồ lớp UML: thêm, sửa, xóa, hiển thị, tìm kiếm và sắp xếp."""
 
+import json
+from pathlib import Path
+
 from models.patient import Inpatient, Outpatient
 
 
 class PatientManager:
     """Quản lý danh sách bệnh nhân và xử lý các nghiệp vụ liên quan."""
 
-    def __init__(self, patients=None):
+    def __init__(self, patients=None, patient_file=None):
         # Lưu danh sách đối tượng Patient (Inpatient hoặc Outpatient)
         self.patients = list(patients) if patients else []
+        self.patient_file = Path(patient_file) if patient_file is not None else None
+
+    def _save_patients(self):
+        """Lưu danh sách bệnh nhân nếu manager được cấu hình file JSON."""
+        if self.patient_file is None:
+            return
+
+        temp_file = self.patient_file.with_name(self.patient_file.name + ".tmp")
+        try:
+            data = []
+            for patient in self.patients:
+                row = {
+                    "patient_type": "inpatient" if isinstance(patient, Inpatient) else "outpatient",
+                    "patient_id": patient.patient_id,
+                    "full_name": patient.full_name,
+                    "birth_year": patient.birth_year,
+                    "phone": patient.phone,
+                }
+                if isinstance(patient, Inpatient):
+                    row.update({
+                        "admission_date": patient.admission_date.isoformat(),
+                        "daily_fee": patient.daily_fee,
+                        "days_stayed": patient.days_stayed,
+                    })
+                elif isinstance(patient, Outpatient):
+                    row["consultation_fee"] = patient.consultation_fee
+                else:
+                    raise ValueError("Chỉ lưu được Inpatient hoặc Outpatient.")
+                data.append(row)
+
+            self.patient_file.parent.mkdir(parents=True, exist_ok=True)
+            with temp_file.open("w", encoding="utf-8") as file:
+                json.dump(data, file, ensure_ascii=False, indent=2, allow_nan=False)
+            temp_file.replace(self.patient_file)
+        except (OSError, TypeError, ValueError, AttributeError) as error:
+            if temp_file.exists():
+                try:
+                    temp_file.unlink()
+                except OSError:
+                    pass
+            raise ValueError(f"Không thể lưu dữ liệu bệnh nhân: {error}") from error
 
     def _find_by_id(self, patient_id):
         """Tìm bệnh nhân theo mã; trả về None nếu không tìm thấy."""
@@ -29,6 +73,11 @@ class PatientManager:
             raise ValueError(f"Thông tin bệnh nhân '{patient.patient_id}' không hợp lệ.")
 
         self.patients.append(patient)
+        try:
+            self._save_patients()
+        except Exception:
+            self.patients.remove(patient)
+            raise
 
     def update_patient(self, patient_id, changes):
         """Cập nhật thông tin bệnh nhân qua dict changes; lỗi ở trường nào thì không sửa trường nào."""
@@ -65,6 +114,7 @@ class PatientManager:
                 raise ValueError(
                     f"Dữ liệu sau cập nhật của bệnh nhân '{patient_id}' không hợp lệ."
                 )
+            self._save_patients()
         except Exception:
             # Gặp lỗi thì trả lại toàn bộ giá trị ban đầu để tránh sửa dở dang.
             for field, old_val in old_values.items():
@@ -90,7 +140,13 @@ class PatientManager:
                     f"Không thể xóa bệnh nhân '{patient.patient_id}' vì đang có hồ sơ khám."
                 )
 
-        self.patients.remove(patient)
+        index = self.patients.index(patient)
+        self.patients.pop(index)
+        try:
+            self._save_patients()
+        except Exception:
+            self.patients.insert(index, patient)
+            raise
         return True
 
     def display_patients(self):

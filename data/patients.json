@@ -139,7 +139,7 @@
     "full_name": "Mai Phương Thảo",
     "birth_year": 1984,
     "phone": "0900000016",
-    "admission_date": "2026-11-26",
+    "admission_date": "2026-11-24",
     "daily_fee": 600000.0,
     "days_stayed": 3
   },
@@ -301,7 +301,7 @@
     "full_name": "Đỗ Thùy Dương",
     "birth_year": 1978,
     "phone": "0900000034",
-    "admission_date": "2026-11-26",
+    "admission_date": "2026-11-24",
     "daily_fee": 900000.0,
     "days_stayed": 7
   },
@@ -358,5 +358,13 @@
     "admission_date": "2026-11-14",
     "daily_fee": 500000.0,
     "days_stayed": 6
+  },
+  {
+    "patient_type": "outpatient",
+    "patient_id": "BN041",
+    "full_name": "Nguyễn Văn An",
+    "birth_year": 1988,
+    "phone": "0900000041",
+    "consultation_fee": 200000.0
   }
 ]
