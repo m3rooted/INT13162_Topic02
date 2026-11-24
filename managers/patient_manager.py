@@ -1,14 +1,83 @@
 """Quản lý bệnh nhân theo sơ đồ lớp UML: thêm, sửa, xóa, hiển thị, tìm kiếm và sắp xếp."""
 
+import json
+from datetime import date
+from pathlib import Path
+
 from models.patient import Inpatient, Outpatient
 
 
 class PatientManager:
     """Quản lý danh sách bệnh nhân và xử lý các nghiệp vụ liên quan."""
 
-    def __init__(self, patients=None):
+    def __init__(self, patients=None, data_path=None):
         # Lưu danh sách đối tượng Patient (Inpatient hoặc Outpatient)
         self.patients = list(patients) if patients else []
+        self.data_path = Path(data_path) if data_path is not None else None
+
+    def _read_patient_rows(self):
+        if self.data_path is None:
+            return None
+
+        try:
+            rows = json.loads(self.data_path.read_text(encoding="utf-8-sig"))
+        except (OSError, json.JSONDecodeError) as error:
+            raise RuntimeError(
+                f"Không thể đọc dữ liệu bệnh nhân từ {self.data_path}."
+            ) from error
+
+        if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
+            raise ValueError("Dữ liệu bệnh nhân phải là danh sách các đối tượng JSON.")
+        return rows
+
+    def _write_patient_rows(self, rows):
+        if self.data_path is None:
+            return
+
+        temp_path = self.data_path.with_suffix(".json.tmp")
+        try:
+            temp_path.write_text(
+                json.dumps(rows, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            temp_path.replace(self.data_path)
+        except OSError as error:
+            if temp_path.exists():
+                try:
+                    temp_path.unlink()
+                except OSError:
+                    pass
+            raise RuntimeError(
+                f"Không thể lưu dữ liệu bệnh nhân vào {self.data_path}."
+            ) from error
+
+    @staticmethod
+    def _patient_to_row(patient):
+        row = {
+            "patient_id": patient.patient_id,
+            "full_name": patient.full_name,
+            "birth_year": patient.birth_year,
+            "phone": patient.phone,
+        }
+        if isinstance(patient, Inpatient):
+            row.update(
+                {
+                    "patient_type": "inpatient",
+                    "admission_date": patient.admission_date.isoformat(),
+                    "daily_fee": patient.daily_fee,
+                    "days_stayed": patient.days_stayed,
+                }
+            )
+        elif isinstance(patient, Outpatient):
+            row.update(
+                {
+                    "patient_type": "outpatient",
+                    "consultation_fee": patient.consultation_fee,
+                }
+            )
+        else:
+            raise TypeError("Đối tượng lưu phải là bệnh nhân nội trú hoặc ngoại trú.")
+        return row
 
     def _find_by_id(self, patient_id):
         """Tìm bệnh nhân theo mã; trả về None nếu không tìm thấy."""
@@ -29,6 +98,14 @@ class PatientManager:
             raise ValueError(f"Thông tin bệnh nhân '{patient.patient_id}' không hợp lệ.")
 
         self.patients.append(patient)
+        try:
+            rows = self._read_patient_rows()
+            if rows is not None:
+                rows.append(self._patient_to_row(patient))
+                self._write_patient_rows(rows)
+        except Exception:
+            self.patients.remove(patient)
+            raise
 
     def update_patient(self, patient_id, changes):
         """Cập nhật thông tin bệnh nhân qua dict changes; lỗi ở trường nào thì không sửa trường nào."""
@@ -65,6 +142,19 @@ class PatientManager:
                 raise ValueError(
                     f"Dữ liệu sau cập nhật của bệnh nhân '{patient_id}' không hợp lệ."
                 )
+            rows = self._read_patient_rows()
+            if rows is not None:
+                row = next(
+                    (item for item in rows if item.get("patient_id") == patient.patient_id),
+                    None,
+                )
+                if row is None:
+                    raise RuntimeError(
+                        f"Không tìm thấy bệnh nhân '{patient.patient_id}' trong file JSON."
+                    )
+                for field, value in changes.items():
+                    row[field] = value.isoformat() if isinstance(value, date) else value
+                self._write_patient_rows(rows)
         except Exception:
             # Gặp lỗi thì trả lại toàn bộ giá trị ban đầu để tránh sửa dở dang.
             for field, old_val in old_values.items():
@@ -90,7 +180,28 @@ class PatientManager:
                     f"Không thể xóa bệnh nhân '{patient.patient_id}' vì đang có hồ sơ khám."
                 )
 
-        self.patients.remove(patient)
+        patient_index = self.patients.index(patient)
+        self.patients.pop(patient_index)
+        try:
+            rows = self._read_patient_rows()
+            if rows is not None:
+                row_index = next(
+                    (
+                        index
+                        for index, row in enumerate(rows)
+                        if row.get("patient_id") == patient.patient_id
+                    ),
+                    None,
+                )
+                if row_index is None:
+                    raise RuntimeError(
+                        f"Không tìm thấy bệnh nhân '{patient.patient_id}' trong file JSON."
+                    )
+                rows.pop(row_index)
+                self._write_patient_rows(rows)
+        except Exception:
+            self.patients.insert(patient_index, patient)
+            raise
         return True
 
     def display_patients(self, patients=None):

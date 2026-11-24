@@ -98,5 +98,10 @@
     "doctor_id": "BS020",
     "full_name": "Đinh Quang Vinh",
     "specialty": "Sản phụ khoa"
+  },
+  {
+    "doctor_id": "BS021",
+    "full_name": "Nguyễn Văn Thái",
+    "specialty": "Tim mạch"
   }
 ]

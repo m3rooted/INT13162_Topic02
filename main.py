@@ -42,7 +42,7 @@ def _load_managers():
             patient = Outpatient(*common, row["consultation_fee"])
         patients.append(patient)
 
-    patient_manager = PatientManager(patients)
+    patient_manager = PatientManager(patients, data_path=DATA_DIR / "patients.json")
     doctor_manager = DoctorManager()
     record_manager = RecordManager(patient_manager.patients, doctor_manager.get_all())
     record_manager.medical_records = [
@@ -100,10 +100,10 @@ def _add_patient(manager):
     kind = input(
         "Chọn loại bệnh nhân (1 - Nội trú, 2 - Ngoại trú): "
     ).strip()
-    patient_id = input("Nhập giá trị cột Mã BN: ").strip()
-    name = input("Nhập giá trị cột Họ và tên: ").strip()
-    year = int(input("Nhập giá trị cột Năm sinh: ").strip())
-    phone = input("Nhập giá trị cột Số điện thoại: ").strip()
+    patient_id = input("Nhập Mã BN: ").strip()
+    name = input("Nhập Họ và tên: ").strip()
+    year = int(input("Nhập Năm sinh: ").strip())
+    phone = input("Nhập Số điện thoại: ").strip()
 
     if kind == "1":
         patient = Inpatient(
@@ -133,7 +133,7 @@ def _add_patient(manager):
 
 
 def _update_patient(manager):
-    patient_id = input("Nhập mã bệnh nhân cần cập nhật: ").strip()
+    patient_id = input("Nhập mã bệnh nhân: ").strip()
     column = input(
         "Nhập tên cột cần sửa: "
     ).strip()

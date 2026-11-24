@@ -358,5 +358,15 @@
     "admission_date": "2026-11-14",
     "daily_fee": 500000.0,
     "days_stayed": 6
+  },
+  {
+    "patient_id": "BN041",
+    "full_name": "Nguyễn Văn Nam",
+    "birth_year": 2000,
+    "phone": "0900000041",
+    "patient_type": "inpatient",
+    "admission_date": "2026-05-06",
+    "daily_fee": 2000000.0,
+    "days_stayed": 10
   }
 ]
