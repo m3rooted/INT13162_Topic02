@@ -42,7 +42,11 @@ def _load_managers():
             patient = Outpatient(*common, row["consultation_fee"])
         patients.append(patient)
 
+<<<<<<< HEAD
     patient_manager = PatientManager(patients, DATA_DIR / "patients.json")
+=======
+    patient_manager = PatientManager(patients, data_path=DATA_DIR / "patients.json")
+>>>>>>> 9b5cc324364a9193ffb0da0dc458801bbabe402b
     doctor_manager = DoctorManager()
     record_manager = RecordManager(patient_manager.patients, doctor_manager.get_all())
     record_manager.medical_records = [
@@ -75,13 +79,15 @@ def _call(action):
 
 def _run_menu(title, actions, exit_label="Quay lại"):
     """Hiển thị menu và gọi hàm tương ứng với lựa chọn của người dùng."""
+    width = max(40, len(title) + 4)
+    border = "=" * width
     while True:
-        print(f"\n{title}")
+        print(f"\n{border}\n{title.center(width)}\n{border}")
         for choice, (label, _) in actions.items():
             print(f"{choice}. {label}")
         print(f"0. {exit_label}")
 
-        choice = input("Chọn: ").strip()
+        choice = input("Mời bạn chọn chức năng: ").strip()
         if choice == "0":
             return
 
@@ -95,11 +101,13 @@ def _run_menu(title, actions, exit_label="Quay lại"):
 # --------------------------- BỆNH NHÂN ---------------------------
 
 def _add_patient(manager):
-    kind = input("Loại (1 nội trú, 2 ngoại trú): ").strip()
-    patient_id = input("Mã BN: ").strip()
-    name = input("Họ tên: ").strip()
-    year = int(input("Năm sinh: ").strip())
-    phone = input("Điện thoại: ").strip()
+    kind = input(
+        "Chọn loại bệnh nhân (1 - Nội trú, 2 - Ngoại trú): "
+    ).strip()
+    patient_id = input("Nhập Mã BN: ").strip()
+    name = input("Nhập Họ và tên: ").strip()
+    year = int(input("Nhập Năm sinh: ").strip())
+    phone = input("Nhập Số điện thoại: ").strip()
 
     if kind == "1":
         patient = Inpatient(
@@ -107,9 +115,11 @@ def _add_patient(manager):
             name,
             year,
             phone,
-            date.fromisoformat(input("Ngày nhập viện YYYY-MM-DD: ").strip()),
-            float(input("Phí mỗi ngày: ").strip()),
-            int(input("Số ngày nằm viện: ").strip()),
+            date.fromisoformat(
+                input("Nhập ngày nhập viện (định dạng YYYY-MM-DD): ").strip()
+            ),
+            float(input("Nhập phí mỗi ngày: ").strip()),
+            int(input("Nhập số ngày nằm viện: ").strip()),
         )
     elif kind == "2":
         patient = Outpatient(
@@ -117,57 +127,103 @@ def _add_patient(manager):
             name,
             year,
             phone,
-            float(input("Phí khám: ").strip()),
+            float(input("Nhập phí khám: ").strip()),
         )
     else:
         raise ValueError("Loại bệnh nhân chỉ nhận 1 hoặc 2.")
 
     manager.add_patient(patient)
+    print("Thêm bệnh nhân thành công.")
 
 
 def _update_patient(manager):
-    patient_id = input("Mã BN: ").strip()
-    changes = json.loads(input('Trường sửa, ví dụ {"full_name":"Tên mới"}: '))
-    for key in ("birth_year", "days_stayed"):
-        if key in changes:
-            changes[key] = int(changes[key])
-    for key in ("daily_fee", "consultation_fee"):
-        if key in changes:
-            changes[key] = float(changes[key])
-    if "admission_date" in changes:
-        changes["admission_date"] = date.fromisoformat(changes["admission_date"])
-    manager.update_patient(patient_id, changes)
+    patient_id = input("Nhập mã bệnh nhân: ").strip()
+    column = input(
+        "Nhập tên cột cần sửa: "
+    ).strip()
+    field = {
+        "họ và tên": "full_name",
+        "họ tên": "full_name",
+        "năm sinh": "birth_year",
+        "số điện thoại": "phone",
+        "ngày nhập viện": "admission_date",
+        "phí mỗi ngày": "daily_fee",
+        "số ngày nằm viện": "days_stayed",
+        "phí khám": "consultation_fee",
+    }.get(column.casefold(), column)
+    new_value = input(
+        "Nhập giá trị mới (Định dạng ngày YYYY-MM-DD): "
+    ).strip()
+
+    if field in ("birth_year", "days_stayed"):
+        new_value = int(new_value)
+    elif field in ("daily_fee", "consultation_fee"):
+        new_value = float(new_value)
+    elif field == "admission_date":
+        new_value = date.fromisoformat(new_value)
+
+    changes = {field: new_value}
+    if manager.update_patient(patient_id, changes):
+        print("Cập nhật bệnh nhân thành công.")
 
 
 def _delete_patient(manager, records):
-    patient_id = input("Mã BN: ").strip()
+    patient_id = input("Nhập mã BN của bệnh nhân cần xóa: ").strip()
     deleted = manager.delete_patient(patient_id, records.medical_records)
-    print("Đã xóa." if deleted else "Không tìm thấy bệnh nhân.")
+    print("Xóa bệnh nhân thành công." if deleted else "Không tìm thấy bệnh nhân.")
+
+
+def _show_patients(manager):
+    if manager.display_patients():
+        print("Hiển thị danh sách bệnh nhân thành công.")
 
 
 def _search_patients(manager):
-    kind = input("Tìm theo id/name/all: ").strip()
-    keyword = input("Từ khóa: ").strip()
-    results = manager.find_patients(keyword, kind)
+    column = input(
+        "Nhập tên cột cần tìm: "
+    ).strip().casefold()
+    search_type = {
+        "mã bn": "id",
+        "mã bệnh nhân": "id",
+        "họ và tên": "name",
+        "họ tên": "name",
+        "tất cả": "all",
+    }.get(column, column)
+    keyword = input("Nhập giá trị cần tìm trong cột đã chọn: ").strip()
+    results = manager.find_patients(keyword, search_type)
     if not results:
         print("Không tìm thấy bệnh nhân.")
         return
-    for patient in results:
-        print(patient.display_info())
+    if manager.display_patients(results):
+        print(f"Tìm kiếm bệnh nhân thành công. Tìm thấy {len(results)} kết quả.")
 
 
 def _sort_patients(manager):
-    kind = input("Sắp xếp theo name/fee: ").strip()
-    descending = input("Giảm dần? y/n: ").strip().casefold() == "y"
-    for patient in manager.sort_patients(kind, descending):
-        print(patient.display_info())
+    column = input(
+        "Nhập tên cột dùng để sắp xếp: "
+    ).strip().casefold()
+    criterion = {
+        "họ và tên": "name",
+        "họ tên": "name",
+        "tổng phí": "fee",
+        "tổng phí (đồng)": "fee",
+    }.get(column, column)
+    descending = (
+        input("Sắp xếp giảm dần? Nhập y/n: ")
+        .strip()
+        .casefold()
+        == "y"
+    )
+    sorted_patients = manager.sort_patients(criterion, descending)
+    if manager.display_patients(sorted_patients):
+        print("Sắp xếp danh sách bệnh nhân thành công.")
 
 
 def _patient_menu(manager, records):
     _run_menu(
         "BỆNH NHÂN",
         {
-            "1": ("Xem danh sách", manager.display_patients),
+            "1": ("Xem danh sách", lambda: _show_patients(manager)),
             "2": ("Thêm", lambda: _add_patient(manager)),
             "3": ("Cập nhật", lambda: _update_patient(manager)),
             "4": ("Xóa", lambda: _delete_patient(manager, records)),
@@ -181,50 +237,79 @@ def _patient_menu(manager, records):
 
 def _add_doctor(manager, records):
     doctor = Doctor(
-        input("Mã BS: ").strip(),
-        input("Họ tên: ").strip(),
-        input("Chuyên khoa: ").strip(),
+        input("Nhập mã BS: ").strip(),
+        input("Nhập giá trị cột Họ và tên: ").strip(),
+        input("Nhập chuyên khoa: ").strip(),
     )
     manager.add_doctor(doctor)
     records.doctors = manager.get_all()
+    print("Thêm bác sĩ thành công.")
 
 
 def _update_doctor(manager):
-    doctor_id = input("Mã BS: ").strip()
-    changes = json.loads(input('Trường sửa, ví dụ {"specialty":"Nhi khoa"}: '))
-    manager.update_doctor(doctor_id, changes)
+    doctor_id = input("Nhập mã bác sĩ cần cập nhật: ").strip()
+    column = input("Nhập tên cột cần sửa: ").strip()
+    field = {
+        "họ và tên": "full_name",
+        "họ tên": "full_name",
+        "chuyên khoa": "specialty",
+    }.get(column.casefold(), column)
+    new_value = input("Nhập giá trị mới: ").strip()
+    changes = {field: new_value}
+    if manager.update_doctor(doctor_id, changes):
+        print("Cập nhật bác sĩ thành công.")
 
 
 def _delete_doctor(manager, records):
-    doctor_id = input("Mã BS: ").strip()
+    doctor_id = input("Nhập mã BS của bác sĩ cần xóa: ").strip()
     deleted = manager.delete_doctor(doctor_id, records.medical_records)
     if deleted:
         records.doctors = manager.get_all()
-        print("Đã xóa.")
+        print("Xóa bác sĩ thành công.")
     else:
         print("Không tìm thấy bác sĩ.")
 
 
+def _show_doctors(manager):
+    if manager.display_doctors():
+        print("Hiển thị danh sách bác sĩ thành công.")
+
+
 def _search_doctors(manager):
-    kind = input("Tìm theo id/name/specialty: ").strip()
-    keyword = input("Từ khóa: ").strip()
-    if kind == "id":
+    column = input(
+        "Nhập tên cột cần tìm: "
+    ).strip().casefold()
+    search_type = {
+        "mã bs": "id",
+        "mã bác sĩ": "id",
+        "họ và tên": "name",
+        "họ tên": "name",
+        "chuyên khoa": "specialty",
+    }.get(column, column)
+    keyword = input("Nhập giá trị cần tìm: ").strip()
+    if search_type == "id":
         result = manager.find_by_id(keyword)
         results = [result] if result is not None else []
-    elif kind == "name":
+    elif search_type == "name":
         results = manager.find_by_name(keyword)
-    elif kind == "specialty":
+    elif search_type == "specialty":
         results = manager.find_by_specialty(keyword)
     else:
-        raise ValueError("Tiêu chí tìm kiếm chỉ nhận id, name hoặc specialty.")
-    manager.display_doctors(results)
+        raise ValueError(
+            "Tiêu chí tìm kiếm chỉ nhận Mã BS, Họ và tên hoặc Chuyên khoa."
+        )
+    if not results:
+        print("Không tìm thấy bác sĩ.")
+        return
+    if manager.display_doctors(results):
+        print(f"Tìm kiếm bác sĩ thành công. Tìm thấy {len(results)} kết quả.")
 
 
 def _doctor_menu(manager, records):
     _run_menu(
         "BÁC SĨ",
         {
-            "1": ("Xem danh sách", manager.display_doctors),
+            "1": ("Xem danh sách", lambda: _show_doctors(manager)),
             "2": ("Thêm", lambda: _add_doctor(manager, records)),
             "3": ("Cập nhật", lambda: _update_doctor(manager)),
             "4": ("Xóa", lambda: _delete_doctor(manager, records)),
@@ -237,57 +322,98 @@ def _doctor_menu(manager, records):
 
 def _add_record(manager):
     record = MedicalRecord(
-        input("Mã hồ sơ: ").strip(),
-        input("Mã BN: ").strip(),
-        input("Mã BS: ").strip(),
-        date.fromisoformat(input("Ngày YYYY-MM-DD: ").strip()),
-        input("Chẩn đoán: ").strip(),
-        float(input("Phí (0 nếu chưa có): ").strip()),
+        input("Nhập Mã hồ sơ: ").strip(),
+        input("Nhập Mã bệnh nhân: ").strip(),
+        input("Nhập Mã bác sĩ: ").strip(),
+        date.fromisoformat(
+            input("Nhập Ngày khám (định dạng YYYY-MM-DD): ").strip()
+        ),
+        input("Nhập Chẩn đoán: ").strip(),
+        float(input("Nhập Chi phí (nhập 0 nếu chưa có phí): ").strip()),
     )
     manager.create_medical_record(record)
 
 
 def _update_record(manager):
-    record_id = input("Mã hồ sơ: ").strip()
-    changes = json.loads(input('Trường sửa, ví dụ {"diagnosis":"Chẩn đoán mới"}: '))
-    if "visit_date" in changes:
-        changes["visit_date"] = date.fromisoformat(changes["visit_date"])
-    if "fee_at_visit" in changes and changes["fee_at_visit"] is not None:
-        changes["fee_at_visit"] = float(changes["fee_at_visit"])
+    record_id = input("Nhập mã hồ sơ khám cần cập nhật: ").strip()
+    column = input(
+        "Nhập tên cột cần sửa: "
+    ).strip()
+    field = {
+        "mã bác sĩ": "doctor_id",
+        "ngày khám": "visit_date",
+        "chẩn đoán": "diagnosis",
+        "chuẩn đoán": "diagnosis",
+        "chi phí": "fee_at_visit",
+    }.get(column.casefold(), column)
+    new_value = input(
+        "Nhập giá trị mới (nếu là ngày khám, dùng định dạng YYYY-MM-DD): "
+    ).strip()
+
+    if field == "visit_date":
+        new_value = date.fromisoformat(new_value)
+    elif field == "fee_at_visit":
+        new_value = float(new_value)
+
+    changes = {field: new_value}
     manager.update_medical_record(record_id, changes)
 
 
 def _assign_doctor(manager):
-    record_id = input("Mã hồ sơ: ").strip()
-    doctor_id = input("Mã BS: ").strip()
+    record_id = input("Nhập Mã hồ sơ cần phân công: ").strip()
+    doctor_id = input("Nhập Mã bác sĩ phụ trách: ").strip()
     manager.assign_doctor(record_id, doctor_id)
 
 
 def _search_records(manager):
-    kind = input(
-        "record_id/patient_id/patient_name/doctor_id/doctor_name: "
-    ).strip()
-    keyword = input("Từ khóa: ").strip()
-    results = manager.find_medical_records(keyword, kind)
+    column = input(
+        "Nhập tên cột cần tìm: "
+    ).strip().casefold()
+    search_type = {
+        "mã hồ sơ": "record_id",
+        "mã bệnh nhân": "patient_id",
+        "mã bác sĩ": "doctor_id",
+        "tên bệnh nhân": "patient_name",
+        "tên bác sĩ": "doctor_name",
+    }.get(column, column)
+    keyword = input("Nhập giá trị cần tìm: ").strip()
+    results = manager.find_medical_records(keyword, search_type)
     if not results:
         print("Không tìm thấy hồ sơ.")
         return
-    for record in results:
-        print(record.display_info())
+    if manager.display_medical_records(results):
+        print(f"Tìm kiếm hồ sơ thành công. Tìm thấy {len(results)} kết quả.")
 
 
 def _sort_records(manager):
-    kind = input("Sắp xếp theo visit_date/fee_at_visit: ").strip()
-    descending = input("Giảm dần? y/n: ").strip().casefold() == "y"
-    for record in manager.sort_medical_records(kind, descending):
-        print(record.display_info())
+    column = input(
+        "Nhập tên cột dùng để sắp xếp: "
+    ).strip().casefold()
+    criterion = {
+        "ngày khám": "visit_date",
+        "chi phí": "fee_at_visit",
+    }.get(column, column)
+    descending = (
+        input("Sắp xếp giảm dần? Nhập y/n: ")
+        .strip()
+        .casefold()
+        == "y"
+    )
+    sorted_records = manager.sort_medical_records(criterion, descending)
+    if sorted_records and manager.display_medical_records(sorted_records):
+        print("Sắp xếp danh sách hồ sơ thành công.")
+
+
+def _show_records(manager):
+    if manager.display_medical_records():
+        print("Hiển thị danh sách hồ sơ thành công.")
 
 
 def _record_menu(manager):
     _run_menu(
         "HỒ SƠ KHÁM",
         {
-            "1": ("Xem danh sách", manager.display_medical_records),
+            "1": ("Xem danh sách", lambda: _show_records(manager)),
             "2": ("Thêm", lambda: _add_record(manager)),
             "3": ("Cập nhật", lambda: _update_record(manager)),
             "4": ("Phân công bác sĩ", lambda: _assign_doctor(manager)),
@@ -312,6 +438,7 @@ def _show_report(patients, doctors, records):
         if not line.startswith("Tổng phí ghi nhận tại các lượt khám:")
     ]
     print("\n".join(visible_lines))
+    print("Tạo báo cáo thống kê thành công.")
 
 
 def main():

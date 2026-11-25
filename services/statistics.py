@@ -242,4 +242,4 @@ def show_report(report, hide_visit_fee=True):
     print()
     print(text)
     print()
-    input("Nhấn Enter để quay lại menu...")
+    input("Nhấn Enter để quay lại menu chính...")

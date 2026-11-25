@@ -5,7 +5,7 @@
             "patient_id": "BN001",
             "doctor_id": "BS001",
             "visit_date": "2026-11-10",
-            "diagnosis": "Viêm phế quản cấp",
+            "diagnosis": "Suy dinh dưỡng",
             "fee_at_visit": 2250000.0
         },
         {
@@ -19,7 +19,7 @@
         {
             "record_id": "HS003",
             "patient_id": "BN003",
-            "doctor_id": "BS003",
+            "doctor_id": "BS019",
             "visit_date": "2026-11-14",
             "diagnosis": "Theo dõi tăng huyết áp",
             "fee_at_visit": 1800000.0
@@ -37,8 +37,24 @@
             "patient_id": "BN005",
             "doctor_id": "BS003",
             "visit_date": "2026-11-17",
-            "diagnosis": "Đau đầu",
+            "diagnosis": "căng thẳng",
             "fee_at_visit": 200000.0
+        },
+        {
+            "record_id": "HS007",
+            "patient_id": "BN010",
+            "doctor_id": "BS016",
+            "visit_date": "2026-11-09",
+            "diagnosis": "Ung thư",
+            "fee_at_visit": 500000.0
+        },
+        {
+            "record_id": "HS006",
+            "patient_id": "BN006",
+            "doctor_id": "BS007",
+            "visit_date": "2026-11-15",
+            "diagnosis": "Suy tim",
+            "fee_at_visit": 100000.0
         }
     ]
 }

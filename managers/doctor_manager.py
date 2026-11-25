@@ -27,7 +27,7 @@ class DoctorManager:
     Mọi thay đổi (thêm/sửa/xóa) được tự động lưu vào data/doctors.json.
     """
 
-    # Chỉ cho sửa họ tên và chuyên khoa; mã bác sĩ đã gắn với hồ sơ khám nên cố định
+    # Chỉ cho sửa họ và tên, chuyên khoa; mã bác sĩ đã gắn với hồ sơ khám nên cố định
     EDITABLE_FIELDS = ("full_name", "specialty")
 
     # Đường dẫn file dữ liệu, dùng chung cho cả đọc và ghi
@@ -145,7 +145,7 @@ class DoctorManager:
         **kwargs: str,
     ) -> bool:
         """
-        Sửa họ tên và/hoặc chuyên khoa theo mã, rồi lưu file.
+        Sửa họ và tên và/hoặc chuyên khoa theo mã, rồi lưu file.
         Nhận dict changes theo UML; cũng hỗ trợ truyền các trường bằng keyword.
         """
         doctor = self._require(doctor_id)
@@ -224,7 +224,7 @@ class DoctorManager:
         return self._doctors.get(self._key(doctor_id))
 
     def find_by_name(self, keyword: str) -> List[Doctor]:
-        """Tìm gần đúng theo họ tên."""
+        """Tìm gần đúng theo họ và tên."""
         return self._search("full_name", keyword)
 
     def find_by_specialty(self, keyword: str) -> List[Doctor]:
@@ -241,12 +241,14 @@ class DoctorManager:
         """Số lượng bác sĩ."""
         return len(self._doctors)
 
-    def display_doctors(self, doctors: Optional[List[Doctor]] = None) -> None:
+    def display_doctors(self, doctors: Optional[List[Doctor]] = None) -> bool:
         """
         Hiển thị bảng danh sách bác sĩ ra console.
         Truyền doctors để hiển thị kết quả tìm kiếm; bỏ trống thì hiển thị tất cả.
         """
-        print(self.format_doctors(doctors))
+        rows = self.get_all() if doctors is None else doctors
+        print(self.format_doctors(rows))
+        return bool(rows)
 
     def format_doctors(self, doctors: Optional[List[Doctor]] = None) -> str:
         """Tạo chuỗi bảng bác sĩ để menu có thể ghép vào giao diện riêng."""
@@ -254,7 +256,7 @@ class DoctorManager:
         if not rows:
             return "Chưa có dữ liệu"
 
-        headers = ("STT", "Mã BS", "Họ tên", "Chuyên khoa")
+        headers = ("STT", "Mã BS", "Họ và tên", "Chuyên khoa")
         data = [(str(i), d.doctor_id, d.full_name, d.specialty)
                 for i, d in enumerate(rows, 1)]
 
@@ -273,7 +275,7 @@ class DoctorManager:
         d = self._require(doctor_id)
         return (
             f"Mã bác sĩ : {d.doctor_id}\n"
-            f"Họ tên     : {d.full_name}\n"
+            f"Họ và tên  : {d.full_name}\n"
             f"Chuyên khoa: {d.specialty}"
         )
 

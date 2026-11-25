@@ -468,51 +468,68 @@ class MedicalRecordManager:
     # ==================================================
 
     """Hiển thị danh sách hồ sơ khám bệnh."""
-    def display_medical_records(self) -> None:
+    def display_medical_records(self, records=None) -> bool:
 
         try:
-            if not self.medical_records:
+            rows = self.medical_records if records is None else records
+            if not rows:
                 print("Chưa có hồ sơ khám bệnh.")
-                return
+                return False
 
-            print("\n" + "=" * 115)
-            print("DANH SÁCH HỒ SƠ KHÁM BỆNH".center(115))
-            print("=" * 115)
-
-            print(
-                f"{'Mã hồ sơ':<12}"
-                f"{'Mã bệnh nhân':<16}"
-                f"{'Mã bác sĩ':<14}"
-                f"{'Ngày khám':<16}"
-                f"{'Chẩn đoán':<37}"
-                f"{'Chi phí':>15}"
+            print("\n=== DANH SÁCH HỒ SƠ KHÁM BỆNH ===")
+            headers = (
+                "STT",
+                "Mã hồ sơ",
+                "Mã bệnh nhân",
+                "Mã bác sĩ",
+                "Ngày khám",
+                "Chẩn đoán",
+                "Chi phí (đồng)",
             )
-
-            print("-" * 115)
-
-            # Hiển thị từng hồ sơ
-            for record in self.medical_records:
-
-                if record.fee_at_visit is not None:
-                    fee = f"{record.fee_at_visit:,.0f}"
-                else:
-                    fee = "Chưa có"
-
-                print(
-                    f"{record.record_id:<12}"
-                    f"{record.patient_id:<16}"
-                    f"{record.doctor_id:<14}"
-                    f"{record.visit_date.isoformat():<16}"
-                    f"{record.diagnosis:<37}"
-                    f"{fee:>15}"
+            data = []
+            for index, record in enumerate(rows, 1):
+                fee = (
+                    f"{record.fee_at_visit:,.0f}"
+                    if record.fee_at_visit is not None
+                    else "Chưa có"
+                )
+                data.append(
+                    (
+                        str(index),
+                        record.record_id,
+                        record.patient_id,
+                        record.doctor_id,
+                        record.visit_date.isoformat(),
+                        record.diagnosis,
+                        fee,
+                    )
                 )
 
-            print("=" * 115)
+            widths = [
+                max(len(header), *(len(row[column]) for row in data))
+                for column, header in enumerate(headers)
+            ]
+            border = "+" + "+".join("-" * (width + 2) for width in widths) + "+"
 
-            print(f"Tổng số hồ sơ: {len(self.medical_records)}")
+            def format_row(cells):
+                formatted = [
+                    cell.rjust(width) if column in (0, 6) else cell.ljust(width)
+                    for column, (cell, width) in enumerate(zip(cells, widths))
+                ]
+                return "| " + " | ".join(formatted) + " |"
+
+            print(border)
+            print(format_row(headers))
+            print(border)
+            for row in data:
+                print(format_row(row))
+            print(border)
+            print(f"Tổng số hồ sơ: {len(rows)}")
+            return True
 
         except (TypeError, ValueError, AttributeError) as error:
             print(f"Lỗi hiển thị hồ sơ: {error}")
+            return False
 
     # ==================================================
     # 7. VALIDATE RELATIONS
